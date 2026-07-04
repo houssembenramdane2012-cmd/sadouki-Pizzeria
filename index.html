@@ -6,6 +6,15 @@
 <meta name="theme-color" content="#0a0a0a">
 <title>المطعم الفاخر | القائمة الذكية</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+
+<!-- إعدادات تثبيت التطبيق على الشاشة الرئيسية (PWA) -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="المطعم الفاخر">
+
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 
 <style id="dynamic-theme">
@@ -945,6 +954,13 @@ async function initApp() {
 }
 
 window.addEventListener('DOMContentLoaded', initApp);
+
+/* تسجيل الـ service worker ليصبح الموقع قابلاً للتثبيت كتطبيق على الشاشة الرئيسية */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
 
 /* حفظ الحالة الحالية على JSONBin مع مؤشر حفظ ومعالجة أخطاء */
 async function persistState(successMsg) {
