@@ -2509,7 +2509,23 @@ const DEFAULT_MENU = [
         "id": "item_seed_112"
     }
 ];
+// إضافة التعديلات برمجياً لجميع الأطباق
+DEFAULT_MENU.forEach(item => {
+    // 1. إضافة الهريسة والمايونيز بـ 0 دينار لجميع العناصر
+    item.paidExtras = [
+        { "name": "الهريسة", "price": 0 },
+        { "name": "مايونيز", "price": 0 }
+    ];
 
+    // 2. إضافة المكونات التي يمكن إزالتها لأقسام محددة فقط
+    if (["burger", "sandwich", "tacos", "panuozzo"].includes(item.category)) {
+        item.removableExtras = [
+            { "name": "(بدون خس (شلاضة))" },
+            { "name": "بدون طماطم" },
+            { "name": "بدون بصل" }
+        ];
+    }
+});
 
 const DEFAULT_SETTINGS = {
     restaurantName: 'المطعم الفاخر',
