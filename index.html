@@ -811,8 +811,8 @@ select.form-control option { background-color: var(--current-surface); color: va
    1) الإعدادات وتكامل JSONBin
    ===================================================================== */
 const JSONBIN_CONFIG = {
-    binId: '6a47d730da38895dfe296644',
-    masterKey: '$2a$10$7.VH5GKm3iSQefwhg9Vcs.aGrwkeaxUg31jUfgyhC5bCrt/8Fmh5O',
+    binId: '6a2ac8e1da33895dfeae1c47',
+    masterKey: '$2a$10$NyQ2kvSc9YQOZdfBk34rwupQ7JC1q0NWCudoNS3RceulDVMjrjwFi',
     baseUrl: 'https://api.jsonbin.io/v3'
 };
 
@@ -2509,23 +2509,7 @@ const DEFAULT_MENU = [
         "id": "item_seed_112"
     }
 ];
-// إضافة التعديلات برمجياً لجميع الأطباق
-DEFAULT_MENU.forEach(item => {
-    // 1. إضافة الهريسة والمايونيز بـ 0 دينار لجميع العناصر (كائنات لأنها تحتوي على سعر)
-    item.paidExtras = [
-        { "name": "الهريسة", "price": 0 },
-        { "name": "مايونيز", "price": 0 }
-    ];
 
-    // 2. إضافة المكونات التي يمكن إزالتها (نصوص عادية فقط لأن النظام يضيف كلمة "بدون" تلقائياً)
-    if (["burger", "sandwich", "tacos", "panuozzo"].includes(item.category)) {
-        item.removableExtras = [
-            "خس (شلاضة)",
-            "طماطم",
-            "بصل"
-        ];
-    }
-});
 
 const DEFAULT_SETTINGS = {
     restaurantName: 'المطعم الفاخر',
@@ -2649,26 +2633,51 @@ function formatSerial(n) { return 'ORD-' + String(n).padStart(6, '0'); }
 async function initApp() {
     if (isLightMode) document.body.classList.add('light-mode');
 
+    // أولاً: تحقق من localStorage
+    const cached = localStorage.getItem('restaurant_state_cache');
+    if (cached) {
+        try {
+            appState = normalizeState(JSON.parse(cached));
+            setConnectionOk();
+            applyColorsToCSS();
+            applyRestaurantSettingsToUI();
+            hasLoadedOnce = true;
+            
+            const savedEmail = localStorage.getItem('customer_session_email');
+            if (savedEmail) {
+                loggedCustomer = (appState.customers || []).find(c => c.email === savedEmail) || null;
+            }
+
+            document.getElementById('customer-view').classList.remove('hidden');
+            renderCustomerMenu();
+            renderLiveOrderStatus();
+            resetItemForm();
+            startPolling();
+            
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.add('fade-out');
+            setTimeout(() => overlay.style.display = 'none', 550);
+            return;
+        } catch (e) {
+            console.warn('خطأ في قراءة localStorage', e);
+        }
+    }
+
+    // ثانياً: جرّب تحميل من JSONBin (إذا كان متاحاً)
     try {
         const remote = await fetchState();
         appState = normalizeState(remote);
         if (!appState.menu || appState.menu.length === 0) {
             appState.menu = JSON.parse(JSON.stringify(DEFAULT_MENU));
-            try { await saveState(appState); } catch (e) { /* سيتم المحاولة لاحقاً عبر persistState */ }
         }
         localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
         setConnectionOk();
     } catch (err) {
-        console.warn('تعذر جلب البيانات من JSONBin، سيتم استخدام النسخة المحلية إن وجدت.', err);
-        const cached = localStorage.getItem('restaurant_state_cache');
-        if (cached) {
-            try { appState = normalizeState(JSON.parse(cached)); } catch (e) { appState = defaultState(); }
-        } else {
-            appState = defaultState();
-        }
-        if (!appState.menu || appState.menu.length === 0) {
-            appState.menu = JSON.parse(JSON.stringify(DEFAULT_MENU));
-        }
+        // ثالثاً: استخدم البيانات الافتراضية
+        console.warn('JSONBin غير متاح، استخدام البيانات الافتراضية', err);
+        appState = defaultState();
+        appState.menu = JSON.parse(JSON.stringify(DEFAULT_MENU));
+        localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
         setConnectionError();
     }
 
