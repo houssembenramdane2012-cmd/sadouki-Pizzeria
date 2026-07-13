@@ -1,0 +1,4965 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>المطعم الفاخر | القائمة الذكية</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="المطعم الفاخر">
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+<style id="dynamic-theme">
+/* =====================================================================
+   1) نظام التصميم (Design Tokens)
+   كل الألوان والمقاسات معرّفة هنا كمتغيرات CSS مركزية.
+   لوحة الإدارة تُحدّث --primary-color / --primary-rgb / --bg-dark /
+   --surface-dark / --bg-light / --surface-light ديناميكياً — أي متغير
+   آخر مبني عليها (مثل --primary-color-soft) يتحدّث تلقائياً معها.
+   ===================================================================== */
+:root {
+    /* الألوان الأساسية (قابلة للتخصيص من لوحة الإدارة) */
+    --primary-color: #d4af37;
+    --primary-rgb: 212, 175, 55;
+
+    --bg-dark: #0a0a0a;
+    --surface-dark: #151515;
+    --text-dark: #ffffff;
+    --text-muted-dark: #aaaaaa;
+
+    --bg-light: #f8f9fa;
+    --surface-light: #ffffff;
+    --text-light: #111111;
+    --text-muted-light: #666666;
+
+    /* الحالة الحيّة (تتبدّل مع الوضع الداكن/الفاتح) */
+    --current-bg: var(--bg-dark);
+    --current-surface: var(--surface-dark);
+    --current-text: var(--text-dark);
+    --current-muted: var(--text-muted-dark);
+    --border-color: rgba(212, 175, 55, 0.18);
+
+    /* ألوان دلالية */
+    --danger-color: #ef4444;
+    --danger-rgb: 239, 68, 68;
+    --success-color: #10b981;
+    --success-rgb: 16, 185, 129;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+
+    /* ظلال وأعماق */
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.25);
+    --shadow-lift: 0 16px 40px rgba(0, 0, 0, 0.5);
+    --glow-primary: 0 0 0 4px rgba(var(--primary-rgb), 0.15);
+
+    /* عناصر واجهة عامة */
+    --input-bg: rgba(255, 255, 255, 0.04);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+
+    /* حركة موحّدة لكل التفاعلات */
+    --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+body.light-mode {
+    --current-bg: var(--bg-light);
+    --current-surface: var(--surface-light);
+    --current-text: var(--text-light);
+    --current-muted: var(--text-muted-light);
+    --border-color: rgba(0, 0, 0, 0.09);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.06);
+    --shadow-lift: 0 16px 40px rgba(0, 0, 0, 0.12);
+    --input-bg: #f1f3f5;
+}
+
+/* =====================================================================
+   2) إعادة الضبط الأساسية + الخلفية العامة
+   ===================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Tajawal', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--current-bg);
+    color: var(--current-text);
+    transition: background-color .4s var(--ease-smooth), color .4s var(--ease-smooth);
+    padding-bottom: 100px;
+    min-height: 100vh;
+    background-image:
+        radial-gradient(circle at 10% 0%, rgba(var(--primary-rgb), 0.07), transparent 42%),
+        radial-gradient(circle at 90% 100%, rgba(var(--primary-rgb), 0.06), transparent 42%),
+        radial-gradient(circle at 50% 50%, rgba(var(--primary-rgb), 0.02), transparent 60%);
+    background-attachment: fixed;
+    line-height: 1.4;
+}
+
+/* شريط تمرير أنيق ورفيع */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--primary-rgb), 0.45); }
+::selection { background: var(--primary-color); color: #000; }
+
+/* وصول أفضل للوحة المفاتيح: إطار تركيز واضح دون كسر التصميم */
+a:focus-visible,
+button:focus-visible,
+.form-control:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* احترام تفضيل تقليل الحركة لدى المستخدم */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.hidden { display: none !important; }
+.text-muted { color: var(--current-muted); }
+.text-center { text-align: center; }
+
+/* =====================================================================
+   3) الهيدر
+   ===================================================================== */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0 22px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.brand-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--primary-color), rgba(var(--primary-rgb), 0.5));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: var(--shadow-soft);
+    transition: transform .3s var(--ease-snap);
+}
+.brand-logo:hover { transform: rotate(-6deg) scale(1.06); }
+
+.restaurant-title {
+    font-size: clamp(20px, 4vw, 24px);
+    font-weight: 900;
+    letter-spacing: .3px;
+    background: linear-gradient(90deg, var(--primary-color), rgba(var(--primary-rgb), 0.75));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.restaurant-sub { font-size: 12px; color: var(--current-muted); font-weight: 500; margin-top: 2px; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 30px;
+    border: 1px solid transparent;
+    transition: box-shadow .3s ease;
+}
+.status-pill.open { background: rgba(var(--success-rgb), 0.15); color: var(--success-color); border-color: rgba(var(--success-rgb), 0.35); }
+.status-pill.closed { background: rgba(var(--danger-rgb), 0.15); color: var(--danger-color); border-color: rgba(var(--danger-rgb), 0.35); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse-dot 1.6s infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* =====================================================================
+   4) متابعة حالة الطلب المباشرة
+   ===================================================================== */
+.live-order-card {
+    background-color: var(--current-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .3s ease;
+}
+.live-order-card:hover { box-shadow: var(--shadow-lift); }
+.live-order-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: var(--live-order-accent, var(--primary-color));
+}
+.live-order-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.live-order-title { font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.live-order-serial { color: var(--current-muted); font-weight: 700; font-size: 13px; }
+.live-order-cancelled-note { color: var(--danger-color); font-weight: 800; font-size: 13.5px; display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.live-order-link { font-size: 12.5px; font-weight: 800; color: var(--primary-color); cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; }
+
+/* =====================================================================
+   5) الأزرار
+   ===================================================================== */
+.btn {
+    background-color: var(--primary-color);
+    color: #000;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform .2s var(--ease-snap), box-shadow .25s ease, opacity .2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+.btn:hover { opacity: .92; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(var(--primary-rgb), .3); }
+.btn:active { transform: scale(.96); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary { background-color: var(--current-surface); color: var(--current-text); border: 1px solid var(--border-color); }
+.btn-danger { background-color: var(--danger-color); color: #fff; }
+.btn-success { background-color: var(--success-color); color: #fff; }
+.btn-info { background-color: var(--info-color); color: #fff; }
+.btn-warning { background-color: var(--warning-color); color: #000; }
+.btn-block { width: 100%; }
+.btn-icon { padding: 10px; border-radius: 12px; font-size: 17px; line-height: 1; position: relative; }
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+.icon-badge {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    background: var(--danger-color);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 0 0 2px var(--current-bg);
+    animation: bounce-badge .5s ease;
+}
+@keyframes bounce-badge { 0% { transform: scale(0); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* =====================================================================
+   6) بطاقات الأطباق
+   ===================================================================== */
+.category-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 0 20px;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--primary-color);
+}
+.category-heading::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to left, var(--border-color), transparent); }
+
+.items-grid {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 4px 14px;
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) transparent;
+}
+.items-grid::-webkit-scrollbar { height: 4px; }
+.items-grid::-webkit-scrollbar-track { background: transparent; }
+.items-grid::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; }
+
+.item-card {
+    background-color: var(--current-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    transition: transform .35s var(--ease-smooth), border-color .3s ease, box-shadow .35s ease;
+    flex-shrink: 0;
+    min-width: 280px;
+    max-width: 280px;
+    scroll-snap-align: start;
+}
+.item-card:hover { border-color: var(--primary-color); transform: translateY(-6px); box-shadow: var(--shadow-lift); }
+.item-card:hover .item-image { transform: scale(1.05); }
+
+.item-image-wrap { position: relative; overflow: hidden; }
+.item-image { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid var(--border-color); display: block; background: var(--input-bg); transition: transform .5s var(--ease-smooth); }
+.item-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.55); backdrop-filter: blur(4px); color: #fff; font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 20px; }
+.item-content { padding: 18px; flex-grow: 1; display: flex; flex-direction: column; }
+.item-name { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.item-desc { font-size: 13px; color: var(--current-muted); margin-bottom: 14px; line-height: 1.5; }
+
+.size-options { display: flex; gap: 8px; margin-bottom: 16px; }
+.size-pill {
+    flex: 1;
+    text-align: center;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    padding: 9px 5px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--current-muted);
+    transition: all .2s ease;
+}
+.size-pill.active { background: rgba(var(--primary-rgb), .15); border-color: var(--primary-color); color: var(--primary-color); }
+
+.extras-section { margin-bottom: 16px; }
+.extras-title { font-size: 13px; font-weight: 800; color: var(--primary-color); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+.check-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 12px;
+    background: var(--input-bg);
+    border-radius: 10px;
+    margin-bottom: 7px;
+    font-size: 13.5px;
+    border: 1px solid transparent;
+    transition: .2s ease;
+    cursor: pointer;
+}
+.check-item:hover { border-color: var(--border-color); }
+.check-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-color); cursor: pointer; }
+
+.item-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px dashed var(--border-color); }
+.price-tag { font-size: 22px; font-weight: 900; color: var(--primary-color); }
+
+.empty-state { text-align: center; padding: 70px 20px; color: var(--current-muted); }
+.empty-state .emoji { font-size: 50px; display: block; margin-bottom: 14px; animation: float-emoji 3s ease-in-out infinite; }
+@keyframes float-emoji { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* =====================================================================
+   7) النماذج
+   ===================================================================== */
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--current-muted); font-size: 13.5px; }
+.form-hint { font-size: 12px; color: var(--current-muted); margin-top: 6px; }
+.form-control {
+    width: 100%;
+    padding: 13px 14px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--current-text);
+    border-radius: 12px;
+    font-size: 15px;
+    outline: none;
+    transition: border .25s ease, box-shadow .25s ease;
+}
+.form-control:focus { border-color: var(--primary-color); box-shadow: var(--glow-primary); }
+.form-control::placeholder { color: var(--current-muted); opacity: .7; }
+textarea.form-control { resize: vertical; min-height: 70px; }
+select.form-control { cursor: pointer; }
+select.form-control option { background-color: var(--current-surface); color: var(--current-text); }
+.row-inputs { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.row-inputs .form-control { flex: 1; }
+.input-error { border-color: var(--danger-color) !important; }
+.field-error-msg { color: var(--danger-color); font-size: 12px; margin-top: 6px; font-weight: 700; display: none; }
+
+.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--input-bg); border-radius: 12px; margin-bottom: 14px; }
+.switch { position: relative; width: 50px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border-color); border-radius: 30px; transition: .3s; }
+.switch-slider::before { content: ''; position: absolute; height: 20px; width: 20px; right: 4px; bottom: 4px; background: #fff; border-radius: 50%; transition: .3s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.switch input:checked + .switch-slider { background: var(--success-color); }
+.switch input:checked + .switch-slider::before { transform: translateX(-22px); }
+
+/* =====================================================================
+   8) لوحة الإدارة
+   ===================================================================== */
+.admin-card {
+    background: var(--current-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-soft);
+    transition: box-shadow .3s ease;
+}
+.admin-card-title { font-size: 17px; font-weight: 900; color: var(--primary-color); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.admin-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 25px; }
+.admin-tabs::-webkit-scrollbar { display: none; }
+.tab-btn { background: var(--current-surface); border: 1px solid var(--border-color); color: var(--current-muted); padding: 12px 20px; border-radius: 30px; white-space: nowrap; font-weight: 800; cursor: pointer; transition: all .25s ease; position: relative; }
+.tab-btn:hover { border-color: var(--primary-color); color: var(--current-text); }
+.tab-btn.active { background: var(--primary-color); color: #000; border-color: var(--primary-color); }
+.tab-btn .tab-badge { background: var(--danger-color); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-right: 4px; font-weight: 800; }
+.admin-section { display: none; animation: fadeIn .4s ease; }
+.admin-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.admin-grid-desktop { display: block; }
+@media (min-width: 900px) { .admin-grid-desktop { display: grid; grid-template-columns: 1.1fr .9fr; gap: 26px; align-items: start; } }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-box { background: var(--current-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; text-align: center; transition: transform .25s ease, border-color .25s ease; }
+.stat-box:hover { transform: translateY(-3px); border-color: var(--primary-color); }
+.stat-box .stat-icon { font-size: 22px; margin-bottom: 6px; }
+.stat-box .stat-value { font-size: 24px; font-weight: 900; color: var(--primary-color); }
+.stat-box .stat-label { font-size: 12px; color: var(--current-muted); font-weight: 700; margin-top: 4px; }
+
+/* رسوم بيانية بسيطة (أعمدة) للإحصائيات */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 190px; padding-top: 24px; overflow-x: auto; }
+.bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; min-width: 40px; height: 100%; }
+.bar-value { font-size: 10.5px; font-weight: 800; color: var(--primary-color); margin-bottom: 4px; white-space: nowrap; }
+.bar-fill { width: 100%; max-width: 36px; background: linear-gradient(180deg, var(--primary-color), rgba(var(--primary-rgb), .35)); border-radius: 8px 8px 0 0; min-height: 3px; transition: height .6s var(--ease-smooth); }
+.bar-label { font-size: 11px; color: var(--current-muted); margin-top: 8px; text-align: center; }
+.stats-summary-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.stats-summary-box { flex: 1; min-width: 140px; }
+.stats-summary-box .big-num { font-size: 26px; font-weight: 900; color: var(--primary-color); }
+.stats-summary-box .lbl { font-size: 12px; color: var(--current-muted); font-weight: 700; margin-top: 2px; }
+
+.admin-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background: var(--input-bg);
+    margin-bottom: 10px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    gap: 12px;
+    flex-wrap: wrap;
+    transition: border-color .2s ease;
+}
+.admin-item-row:hover { border-color: rgba(var(--primary-rgb), .4); }
+.admin-item-row img { width: 58px; height: 58px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: var(--current-surface); }
+.admin-item-info { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 180px; }
+.admin-item-actions { display: flex; gap: 8px; }
+.item-off-badge { font-size: 10px; background: var(--danger-color); color: #fff; padding: 2px 8px; border-radius: 8px; margin-right: 6px; font-weight: 800; }
+
+.color-picker-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 12px; background: var(--input-bg); border-radius: 12px; }
+.color-picker-group label { font-size: 14px; font-weight: 700; }
+.color-picker-group input[type="color"] { width: 48px; height: 38px; border: none; border-radius: 8px; cursor: pointer; background: none; padding: 0; }
+.color-preview-row { display: flex; gap: 8px; margin: 16px 0; }
+.color-swatch { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--border-color); }
+.theme-preset { border: 2px solid var(--border-color); border-radius: 14px; padding: 10px; cursor: pointer; text-align: center; transition: .2s; }
+.theme-preset:hover, .theme-preset.selected { border-color: var(--primary-color); }
+.theme-preset .preset-dots { display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; }
+.theme-preset .preset-dots span { width: 16px; height: 16px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.15); }
+.presets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-bottom: 20px; }
+
+/* =====================================================================
+   9) ترتيب حالة الطلب (Stepper)
+   ===================================================================== */
+.order-stepper { display: flex; align-items: center; margin: 16px 0; }
+.step-node { flex: 1; text-align: center; position: relative; }
+.step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--input-bg);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--current-muted);
+    transition: .3s;
+}
+.step-node.done .step-circle { background: var(--success-color); border-color: var(--success-color); color: #fff; }
+.step-node.current .step-circle { background: var(--primary-color); border-color: var(--primary-color); color: #000; box-shadow: var(--glow-primary); }
+.step-label { font-size: 10.5px; color: var(--current-muted); font-weight: 700; }
+.step-node.done .step-label, .step-node.current .step-label { color: var(--current-text); }
+.step-line { position: absolute; top: 15px; right: 50%; width: 100%; height: 2px; background: var(--border-color); z-index: -1; }
+.step-node:first-child .step-line { display: none; }
+.step-node.done .step-line { background: var(--success-color); }
+
+.order-card { padding: 20px; transition: opacity .3s; }
+.order-card.status-delivered { opacity: .55; }
+.order-card.status-cancelled { opacity: .4; }
+.order-status-badge { color: #fff; padding: 5px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 800; }
+.order-card.new-order-flash { animation: flash-new 1.8s ease; }
+@keyframes flash-new { 0%, 30% { box-shadow: 0 0 0 3px var(--primary-color); } 100% { box-shadow: none; } }
+
+/* =====================================================================
+   10) السلة العائمة والنوافذ المنبثقة
+   ===================================================================== */
+.floating-cart {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: #000;
+    padding: 15px 28px;
+    border-radius: 30px;
+    box-shadow: 0 10px 26px rgba(var(--primary-rgb), .4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    max-width: 420px;
+    gap: 14px;
+    z-index: 100;
+    cursor: pointer;
+    font-weight: 800;
+    transition: transform .25s var(--ease-snap), box-shadow .25s ease;
+}
+.floating-cart:hover { box-shadow: 0 14px 32px rgba(var(--primary-rgb), .5); }
+.floating-cart:active { transform: translateX(-50%) scale(.95); }
+.cart-badge { background: #000; color: var(--primary-color); padding: 2px 10px; border-radius: 20px; margin-right: 8px; font-size: 13px; }
+
+.closed-banner {
+    background: rgba(var(--danger-rgb), .12);
+    border: 1px solid rgba(var(--danger-rgb), .35);
+    color: var(--danger-color);
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 800;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.show { display: flex; animation: fadeIn .25s ease; }
+.modal-content {
+    background: var(--current-surface);
+    width: 100%;
+    max-width: 500px;
+    border-radius: 24px;
+    padding: 28px 22px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lift);
+    animation: modal-pop .3s var(--ease-snap);
+}
+@keyframes modal-pop { from { opacity: 0; transform: scale(.94) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-content.wide { max-width: 640px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h2 { font-size: 19px; }
+.close-btn { background: var(--input-bg); border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 20px; color: var(--current-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color .2s ease, transform .2s ease; }
+.close-btn:hover { color: var(--danger-color); transform: rotate(90deg); }
+
+/* =====================================================================
+   11) التوست والتنبيهات
+   ===================================================================== */
+#toast-container { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 3000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: 92%; max-width: 420px; }
+.toast {
+    background: #1c1c1c;
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(-30px) scale(.95);
+    transition: all .35s var(--ease-snap);
+    width: 100%;
+}
+.toast.show { opacity: 1; transform: translateY(0) scale(1); }
+.toast.error { border-color: var(--danger-color); }
+.toast.success { border-color: var(--success-color); }
+.toast.info { border-color: var(--info-color); }
+
+/* شاشة التحميل */
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-dark);
+    z-index: 5000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    transition: opacity .5s ease, visibility .5s ease;
+}
+#loading-overlay.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-plate { width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(212,175,55,.2); border-top-color: #d4af37; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { color: #d4af37; font-weight: 800; font-size: 15px; letter-spacing: .5px; }
+
+/* مؤشر الحفظ */
+#save-indicator {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    background: var(--current-surface);
+    border: 1px solid var(--border-color);
+    color: var(--current-text);
+    padding: 10px 16px;
+    border-radius: 30px;
+    font-size: 12.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-soft);
+    z-index: 2500;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: all .3s ease;
+    pointer-events: none;
+}
+#save-indicator.show { opacity: 1; transform: translateY(0); }
+.spinner-mini { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border-color); border-top-color: var(--primary-color); animation: spin .7s linear infinite; }
+
+.conn-banner {
+    background: rgba(var(--danger-rgb), .12);
+    border: 1px solid rgba(var(--danger-rgb), .35);
+    color: var(--danger-color);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+/* =====================================================================
+   12) الاستجابة على الشاشات الصغيرة
+   ===================================================================== */
+@media (max-width: 480px) {
+    .restaurant-title { font-size: 20px; }
+    .modal-content { padding: 22px 16px; border-radius: 18px; }
+    .items-grid { gap: 12px; }
+    .item-image { height: 120px; }
+    .item-content { padding: 12px; }
+    .item-name { font-size: 15px; margin-bottom: 4px; }
+    .price-tag { font-size: 17px; }
+    .btn { font-size: 13px; padding: 10px 14px; }
+    .item-footer .btn { padding: 8px 12px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+    <div class="loader-plate"></div>
+    <div class="loader-text" id="loading-text">جاري تحميل المطعم...</div>
+</div>
+
+<div id="toast-container"></div>
+
+<div id="save-indicator"><div class="spinner-mini"></div><span id="save-indicator-text">جاري الحفظ...</span></div>
+
+<div id="customer-view" class="container hidden">
+    <header>
+        <div class="brand">
+            <div class="brand-logo">🍽️</div>
+            <div>
+                <h1 id="restaurant-main-title" class="restaurant-title">المطعم الفاخر</h1>
+                <div class="restaurant-sub" id="restaurant-status-line">
+                    <span class="status-pill open" id="open-status-pill"><span class="status-dot"></span> مفتوح الآن</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary btn-icon" onclick="openAccountModal()" title="حسابي">👤</button>
+            <button class="btn btn-secondary btn-icon" onclick="toggleTheme()" title="تبديل المظهر">🌓</button>
+            <button class="btn btn-secondary btn-icon" onclick="switchView('login-view')" title="الإدارة">⚙️</button>
+        </div>
+    </header>
+
+    <div id="connection-banner" class="conn-banner hidden">⚠️ تعذّر الاتصال بالخادم — يتم العرض من آخر نسخة محفوظة محلياً.</div>
+    <div id="closed-banner" class="closed-banner hidden">🚫 المطعم مغلق حالياً، لا يمكن استقبال طلبات جديدة في الوقت الحالي.</div>
+
+    <div id="live-order-status" class="hidden"></div>
+
+    <div id="menu-container"></div>
+
+    <div class="floating-cart hidden" id="floating-cart" onclick="openCartModal()">
+        <div>🛒 إتمام الطلب <span class="cart-badge" id="cart-count">0</span></div>
+        <div id="cart-total-float">0 دج</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="cart-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="color: var(--primary-color);">🛒 سلة الطلبات</h2>
+            <button class="close-btn" onclick="closeModal('cart-modal')">×</button>
+        </div>
+        <div id="cart-items-list" style="margin-bottom: 18px; max-height: 260px; overflow-y: auto;"></div>
+        <div style="border-top: 1px dashed var(--border-color); padding-top: 14px; margin-bottom: 18px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span class="text-muted">المجموع:</span> <span id="cart-subtotal">0 دج</span></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span class="text-muted">رسوم التوصيل:</span> <span id="cart-delivery">0 دج</span></div>
+            <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 21px; color: var(--primary-color);"><span>الإجمالي:</span> <span id="cart-final-total">0 دج</span></div>
+            <div class="form-hint" id="cart-eta-hint"></div>
+        </div>
+
+        <div id="cart-login-required" style="text-align:center; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 18px;">
+            <div style="font-size:30px; margin-bottom:6px;">🔒</div>
+            <div style="font-weight:800; margin-bottom:6px;">يجب تسجيل الدخول أو إنشاء حساب لإتمام الطلب</div>
+            <div class="text-muted" style="font-size:13px; margin-bottom:14px;">حسابك يتيح لك متابعة حالة طلبك خطوة بخطوة</div>
+            <button class="btn btn-block" onclick="closeModal('cart-modal'); openAccountModal();">👤 تسجيل الدخول / إنشاء حساب</button>
+        </div>
+
+        <div id="cart-order-fields" class="hidden">
+            <div class="form-group">
+                <input type="text" id="order-name" class="form-control" placeholder="الاسم الكريم">
+            </div>
+            <div class="form-group">
+                <input type="tel" id="order-phone" class="form-control" placeholder="رقم الهاتف (مثال: 0551234567)" maxlength="10">
+                <div class="field-error-msg" id="phone-error-msg">رقم هاتف جزائري غير صحيح (يبدأ بـ 05 أو 06 أو 07 ويتكون من 10 أرقام)</div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="order-address" class="form-control" placeholder="العنوان بالتفصيل">
+            </div>
+            <div class="form-group">
+                <textarea id="order-note" class="form-control" placeholder="ملاحظات إضافية (اختياري)"></textarea>
+            </div>
+            <button class="btn btn-block" style="padding: 15px; font-size: 17px;" id="submit-order-btn" onclick="submitOrder()">🚀 تأكيد وإرسال الطلب</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="account-modal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h2 style="color: var(--primary-color);">👤 حسابي</h2>
+            <button class="close-btn" onclick="closeModal('account-modal')">×</button>
+        </div>
+
+        <div id="account-logged-out">
+            <div class="admin-tabs" style="margin-bottom:18px;">
+                <button class="tab-btn active" id="acc-tab-login-btn" onclick="switchAccountTab('login')">تسجيل الدخول</button>
+                <button class="tab-btn" id="acc-tab-signup-btn" onclick="switchAccountTab('signup')">حساب جديد</button>
+            </div>
+            <div id="acc-form-login">
+                <div class="form-group"><input type="email" id="acc-login-email" class="form-control" placeholder="البريد الإلكتروني" autocomplete="email"></div>
+                <div class="form-group"><input type="password" id="acc-login-password" class="form-control" placeholder="كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter') customerLogin()"></div>
+                <button class="btn btn-block" onclick="customerLogin()">دخول</button>
+            </div>
+            <div id="acc-form-signup" class="hidden">
+                <div class="form-group"><input type="text" id="acc-signup-name" class="form-control" placeholder="الاسم الكامل"></div>
+                <div class="form-group"><input type="email" id="acc-signup-email" class="form-control" placeholder="البريد الإلكتروني" autocomplete="email"></div>
+                <div class="form-group"><input type="password" id="acc-signup-password" class="form-control" placeholder="كلمة المرور (٤ أحرف فأكثر)" autocomplete="new-password" onkeydown="if(event.key==='Enter') customerSignup()"></div>
+                <button class="btn btn-block" onclick="customerSignup()">إنشاء الحساب</button>
+            </div>
+        </div>
+
+        <div id="account-logged-in" class="hidden">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:38px;">🙋</div>
+                <div style="font-weight:900; font-size:18px; color:var(--primary-color);" id="acc-welcome-name"></div>
+                <div class="text-muted" style="font-size:13px;" id="acc-welcome-email"></div>
+            </div>
+            <button class="btn btn-block" style="margin-bottom:10px;" onclick="openMyOrdersModal()">🧾 طلباتي</button>
+            <button class="btn btn-secondary btn-block" onclick="customerLogout()">🚪 تسجيل الخروج</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="my-orders-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="color: var(--primary-color);">🧾 طلباتي</h2>
+            <button class="close-btn" onclick="closeModal('my-orders-modal')">×</button>
+        </div>
+        <div id="my-orders-list"></div>
+    </div>
+</div>
+
+<div id="login-view" class="container hidden">
+    <div class="admin-card" style="max-width: 400px; margin: 80px auto; text-align: center;">
+        <div style="font-size:38px; margin-bottom: 10px;">🔒</div>
+        <h2 style="color: var(--primary-color); margin-bottom: 25px;">دخول لوحة الإدارة</h2>
+        <div class="form-group" style="text-align: right;">
+            <input type="password" id="login-password" class="form-control" placeholder="أدخل كلمة المرور..." autocomplete="current-password" onkeydown="if(event.key==='Enter') checkLogin()">
+        </div>
+        <button class="btn btn-block" style="margin-bottom: 12px;" onclick="checkLogin()">دخول</button>
+        <button class="btn btn-secondary btn-block" onclick="switchView('customer-view')">العودة للمنيو</button>
+    </div>
+</div>
+
+<div id="admin-view" class="container hidden">
+    <header>
+        <div class="brand">
+            <div class="brand-logo">⚙️</div>
+            <div>
+                <h1 class="restaurant-title">لوحة التحكم</h1>
+                <div class="restaurant-sub">إدارة الطلبات والقائمة والإعدادات</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary btn-icon" onclick="manualRefresh()" title="تحديث الآن">🔄</button>
+            <button class="btn btn-secondary btn-icon" onclick="toggleTheme()" title="تبديل المظهر">🌓</button>
+            <button class="btn btn-secondary" onclick="logoutAdmin()">🚪 خروج</button>
+        </div>
+    </header>
+
+    <div id="admin-connection-banner" class="conn-banner hidden">⚠️ تعذّر الاتصال بالخادم — قد لا تكون البيانات محدّثة.</div>
+
+    <div class="stats-grid">
+        <div class="stat-box"><div class="stat-icon">🧾</div><div class="stat-value" id="stat-pending">0</div><div class="stat-label">طلبات قيد الانتظار</div></div>
+        <div class="stat-box"><div class="stat-icon">👨‍🍳</div><div class="stat-value" id="stat-preparing">0</div><div class="stat-label">قيد التحضير</div></div>
+        <div class="stat-box"><div class="stat-icon">🛵</div><div class="stat-value" id="stat-outfordelivery">0</div><div class="stat-label">في الطريق</div></div>
+        <div class="stat-box"><div class="stat-icon">💰</div><div class="stat-value" id="stat-today-revenue">0</div><div class="stat-label">مبيعات اليوم (دج)</div></div>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchAdminTab('tab-orders', this)">🔔 الطلبات <span class="tab-badge hidden" id="orders-tab-badge">0</span></button>
+        <button class="tab-btn" onclick="switchAdminTab('tab-archive', this)">📦 سجل الطلبات</button>
+        <button class="tab-btn" onclick="switchAdminTab('tab-stats', this)">📊 الإحصائيات</button>
+        <button class="tab-btn" onclick="switchAdminTab('tab-menu', this)">🍔 المنيو والأطباق</button>
+        <button class="tab-btn" onclick="switchAdminTab('tab-settings', this)">🎨 الإعدادات والألوان</button>
+    </div>
+
+    <div id="tab-orders" class="admin-section active">
+        <div class="admin-card" style="padding: 14px 18px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <input type="text" id="orders-search" class="form-control" style="flex:1; min-width:180px;" placeholder="🔎 بحث بالاسم أو الهاتف أو رقم الطلب..." oninput="renderOrders()">
+                <select id="orders-filter-status" class="form-control" style="max-width:180px;" onchange="renderOrders()">
+                    <option value="all">كل الحالات</option>
+                    <option value="pending">قيد الانتظار</option>
+                    <option value="preparing">قيد التحضير</option>
+                    <option value="out_for_delivery">في الطريق</option>
+                </select>
+            </div>
+        </div>
+        <div id="admin-orders-list"></div>
+    </div>
+
+    <div id="tab-archive" class="admin-section">
+        <div class="admin-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div><b>📦 الطلبات المؤرشفة</b> <span class="text-muted" style="font-size:13px;">(الطلبات المسلّمة أو الملغاة)</span></div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary btn-sm" onclick="exportArchiveToCSV()">⬇️ تصدير CSV</button>
+                <button class="btn btn-danger btn-sm" onclick="clearArchive()">🗑️ إفراغ السجل</button>
+            </div>
+        </div>
+        <div id="admin-archive-list"></div>
+    </div>
+
+    <div id="tab-stats" class="admin-section">
+        <div class="admin-card">
+            <h3 class="admin-card-title">💰 ملخّص سريع</h3>
+            <div class="stats-summary-row">
+                <div class="stats-summary-box"><div class="big-num" id="stats-today-total">0 دج</div><div class="lbl">مبيعات اليوم</div></div>
+                <div class="stats-summary-box"><div class="big-num" id="stats-today-count">0</div><div class="lbl">عدد طلبات اليوم</div></div>
+                <div class="stats-summary-box"><div class="big-num" id="stats-week-total">0 دج</div><div class="lbl">مبيعات هذا الأسبوع</div></div>
+                <div class="stats-summary-box"><div class="big-num" id="stats-month-total">0 دج</div><div class="lbl">مبيعات هذا الشهر</div></div>
+            </div>
+        </div>
+        <div class="admin-card">
+            <h3 class="admin-card-title">📅 مبيعات أيام الأسبوع الحالي (الأحد ⬅ السبت)</h3>
+            <div id="chart-weekdays"></div>
+        </div>
+        <div class="admin-card">
+            <h3 class="admin-card-title">🗓️ مبيعات أسابيع الشهر الحالي (١ ⬅ ٤)</h3>
+            <div id="chart-weeks"></div>
+        </div>
+        <div class="admin-card">
+            <h3 class="admin-card-title">📆 مبيعات أشهر السنة الحالية (جانفي ⬅ ديسمبر)</h3>
+            <div id="chart-months"></div>
+        </div>
+        <div class="admin-card">
+            <h3 class="admin-card-title">📊 مبيعات الأعوام (٢٠٢٦ ⬅ الآن)</h3>
+            <div id="chart-years"></div>
+        </div>
+    </div>
+
+    <div id="tab-menu" class="admin-section">
+        <div class="admin-grid-desktop">
+            <div class="admin-card">
+                <h3 class="admin-card-title" id="form-title">➕ إضافة طبق جديد</h3>
+                <input type="hidden" id="editing-item-id" value="">
+
+                <div class="form-group">
+                    <label class="form-label">صورة الطبق</label>
+                    <input type="file" id="item-image" class="form-control" accept="image/*" style="padding: 10px;" onchange="previewItemImage(this)">
+                    <img id="item-image-preview" class="hidden" style="width:100%; height:150px; object-fit:cover; border-radius:12px; margin-top:10px;">
+                </div>
+                <div class="form-group"><label class="form-label">الاسم</label><input type="text" id="item-name" class="form-control" placeholder="اسم الطبق"></div>
+                <div class="form-group"><label class="form-label">وصف مختصر (اختياري)</label><input type="text" id="item-desc" class="form-control" placeholder="مثال: جبن موزاريلا طازج مع صلصة الطماطم البيتية"></div>
+                <div class="form-group">
+                    <label class="form-label">القسم</label>
+                    <select id="item-category" class="form-control">
+                        <option value="pizza">بيتزا</option>
+                        <option value="panuozzo">بانوزو</option>
+                        <option value="tacos">تاكوس</option>
+                        <option value="burger">برغر</option>
+                        <option value="sandwich">ساندويتشات</option>
+                        <option value="salade">سلطات</option>
+                        <option value="gratin">غراتان</option>
+                        <option value="pasta">باستا</option>
+                        <option value="chawarma">شاورما</option>
+                        <option value="platter">أطباق رئيسية</option>
+                        <option value="brochette">بروشيت</option>
+                        <option value="piece">قطع</option>
+                        <option value="jus">عصائر منزلية</option>
+                        <option value="drink">مشروبات</option>
+                        <option value="extra">إضافات</option>
+                        <option value="dessert">حلويات</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">السعر حسب الحجم (دج)</label>
+                    <div class="row-inputs">
+                        <input type="number" id="price-small" class="form-control" placeholder="صغير">
+                        <input type="number" id="price-medium" class="form-control" placeholder="متوسط">
+                        <input type="number" id="price-large" class="form-control" placeholder="كبير">
+                    </div>
+                    <div class="form-hint">اترك أي خانة فارغة إن لم يتوفر هذا الحجم — يجب توفر حجم واحد على الأقل.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">➕ إضافات مدفوعة (اختياري)</label>
+                    <div id="dynamic-paid-extras"></div>
+                    <button class="btn btn-secondary btn-block" style="margin-top: 5px; font-size: 13px;" onclick="addPaidExtraField()">➕ إضافة خانة إضافة مدفوعة</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">❌ مكونات يمكن للزبون إزالتها (مثل: بصل)</label>
+                    <div id="dynamic-removable-extras"></div>
+                    <button class="btn btn-secondary btn-block" style="margin-top: 5px; font-size: 13px;" onclick="addRemovableField()">➕ إضافة خانة مكوّن للإزالة</button>
+                </div>
+
+                <div class="switch-row">
+                    <span style="font-weight:700; font-size:14px;">متوفر حالياً للطلب</span>
+                    <label class="switch"><input type="checkbox" id="item-available" checked><span class="switch-slider"></span></label>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="flex:1;" id="save-item-btn" onclick="handleSaveItem()">➕ إضافة الطبق</button>
+                    <button class="btn btn-secondary hidden" id="cancel-edit-btn" style="flex:1;" onclick="resetItemForm()">إلغاء التعديل</button>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h3 class="admin-card-title">🍽️ الأطباق الحالية (<span id="menu-count">0</span>)</h3>
+                <div class="form-group">
+                    <input type="text" id="menu-search" class="form-control" placeholder="🔎 بحث عن طبق..." oninput="renderAdminItems()">
+                </div>
+                <div id="admin-items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-settings" class="admin-section">
+        <div class="admin-grid-desktop">
+            <div>
+                <div class="admin-card">
+                    <h3 class="admin-card-title">🏪 إعدادات المطعم</h3>
+                    <div class="switch-row">
+                        <div>
+                            <div style="font-weight:800;">حالة المطعم</div>
+                            <div class="text-muted" style="font-size:12px;">إغلاق المطعم يمنع الزبائن من إرسال طلبات جديدة</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="setting-isopen" checked onchange="toggleRestaurantOpen()"><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="form-group"><label class="form-label">اسم المطعم</label><input type="text" id="setting-name" class="form-control"></div>
+                    <div class="form-group"><label class="form-label">سعر التوصيل (دج)</label><input type="number" id="setting-delivery" class="form-control"></div>
+                    <div class="form-group"><label class="form-label">مدة التحضير التقريبية (بالدقائق)</label><input type="number" id="setting-prep-time" class="form-control"></div>
+                    <button class="btn btn-block" onclick="saveBasicSettings()">💾 حفظ إعدادات المطعم</button>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">🔑 تغيير كلمة المرور</h3>
+                    <div class="form-group"><label class="form-label">كلمة المرور الحالية</label><input type="password" id="current-password" class="form-control" placeholder="••••••"></div>
+                    <div class="form-group"><label class="form-label">كلمة المرور الجديدة</label><input type="password" id="new-password" class="form-control" placeholder="••••••"></div>
+                    <div class="form-group"><label class="form-label">تأكيد كلمة المرور الجديدة</label><input type="password" id="confirm-password" class="form-control" placeholder="••••••"></div>
+                    <button class="btn btn-block" onclick="changePassword()">🔐 تحديث كلمة المرور</button>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">🔔 إشعارات الطلبات</h3>
+                    <div class="switch-row">
+                        <div>
+                            <div style="font-weight:800;">صوت عند طلب جديد</div>
+                            <div class="text-muted" style="font-size:12px;">تنبيه صوتي عند استلام طلب جديد أثناء فتح لوحة الإدارة</div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="setting-sound-enabled" checked onchange="saveSoundPref()"><span class="switch-slider"></span></label>
+                    </div>
+                    <button class="btn btn-secondary btn-block" onclick="testChime()">🔊 تجربة الصوت</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="admin-card">
+                    <h3 class="admin-card-title">🎨 قوالب جاهزة</h3>
+                    <div class="presets-grid" id="presets-grid"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">🎨 تحكم شامل بالألوان</h3>
+                    <div class="color-picker-group"><label>اللون الرئيسي (الأزرار والأسماء)</label><input type="color" id="color-primary"></div>
+
+                    <h4 style="margin: 14px 0 8px; color: var(--current-muted); font-size: 13px;">ألوان الوضع المظلم</h4>
+                    <div class="color-picker-group"><label>لون الخلفية</label><input type="color" id="color-bg-dark"></div>
+                    <div class="color-picker-group"><label>لون البطاقات</label><input type="color" id="color-surface-dark"></div>
+
+                    <h4 style="margin: 14px 0 8px; color: var(--current-muted); font-size: 13px;">ألوان الوضع الفاتح</h4>
+                    <div class="color-picker-group"><label>لون الخلفية</label><input type="color" id="color-bg-light"></div>
+                    <div class="color-picker-group"><label>لون البطاقات</label><input type="color" id="color-surface-light"></div>
+
+                    <div class="color-preview-row" id="color-preview-row"></div>
+
+                    <div style="display:flex; gap:10px; margin-top: 16px;">
+                        <button class="btn" style="flex: 1;" onclick="saveColors()">🎨 تطبيق الألوان</button>
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="resetColorsToLuxury()">✨ الفخامة الافتراضية</button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h3 class="admin-card-title">⚠️ منطقة الخطر</h3>
+                    <div class="form-hint" style="margin-bottom:12px;">هذه الإجراءات لا يمكن التراجع عنها.</div>
+                    <button class="btn btn-danger btn-block" onclick="factoryReset()">🗑️ إعادة ضبط المصنع (حذف كل البيانات)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =====================================================================
+   1) الإعدادات وتكامل JSONBin
+   ===================================================================== */
+const JSONBIN_BIN_ID = "6a554ddbda38895dfe58d690";
+const JSONBIN_API_KEY = "$2a$10$d9K5D.B4CkfJJ03kBthnZuEkluvNBTXNaqsFM14G6WiwGSYA9cZoS";
+
+/* fetch مع مهلة زمنية قصوى — يمنع تعليق الطلب إلى ما لا نهاية عند تذبذب الشبكة */
+async function fetchWithTimeout(url, options, timeoutMs = 10000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function fetchState() {
+    try {
+        const url = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
+        const res = await fetchWithTimeout(url, {
+            method: 'GET',
+            headers: {
+                'X-Master-Key': JSONBIN_API_KEY
+            }
+        }, 10000);
+        if (!res.ok) {
+            const err = new Error('HTTP ' + res.status);
+            err.status = res.status;
+            throw err;
+        }
+        const data = await res.json();
+        return data.record || null;
+    } catch (e) {
+        console.warn('JSONBin fetch error:', e);
+        throw e;
+    }
+}
+
+/* حفظ الحالة على الخادم مع إعادة محاولة تلقائية واحدة عند انقطاع شبكي مؤقت
+   (لا تُعاد المحاولة عند 4xx/429 لأن إعادة الإرسال لن تُصلح رفض الخادم أو تجاوز الحصة) */
+async function saveState(state, attempt = 1) {
+    try {
+        state.updatedAt = new Date().toISOString();
+        const url = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        const res = await fetchWithTimeout(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_API_KEY,
+                'X-Bin-Versioning': 'false'
+            },
+            body: JSON.stringify(state)
+        }, 15000);
+        if (!res.ok) {
+            const err = new Error('HTTP ' + res.status);
+            err.status = res.status;
+            throw err;
+        }
+        return true;
+    } catch (e) {
+        const isClientRejected = typeof e.status === 'number' && e.status >= 400 && e.status < 500;
+        if (attempt < 2 && !isClientRejected) {
+            await new Promise(r => setTimeout(r, 1200));
+            return saveState(state, attempt + 1);
+        }
+        console.warn('JSONBin save error:', e);
+        throw e;
+    }
+}
+
+const luxuryColors = { primary: '#d4af37', bgDark: '#0a0a0a', surfaceDark: '#151515', bgLight: '#f8f9fa', surfaceLight: '#ffffff' };
+
+const THEME_PRESETS = [
+    { name: 'الفخامة الذهبية', colors: luxuryColors },
+    { name: 'زمردي أنيق', colors: { primary: '#10b981', bgDark: '#0b1210', surfaceDark: '#121b18', bgLight: '#f3fbf7', surfaceLight: '#ffffff' } },
+    { name: 'روبي أحمر', colors: { primary: '#e11d48', bgDark: '#120a0c', surfaceDark: '#1b1013', bgLight: '#fdf5f6', surfaceLight: '#ffffff' } },
+    { name: 'كهرماني برتقالي', colors: { primary: '#f97316', bgDark: '#140d08', surfaceDark: '#1e140c', bgLight: '#fdf7f0', surfaceLight: '#ffffff' } },
+    { name: 'أزرق ملكي', colors: { primary: '#3b82f6', bgDark: '#070a12', surfaceDark: '#101625', bgLight: '#f3f6fd', surfaceLight: '#ffffff' } },
+    { name: 'بنفسجي فاخر', colors: { primary: '#a855f7', bgDark: '#0d0812', surfaceDark: '#17101f', bgLight: '#f8f4fd', surfaceLight: '#ffffff' } }
+];
+
+const DEFAULT_MENU = [
+    {
+        "name": "EGG BURGER",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 300,
+            "medium": null,
+            "large": 400
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_1"
+    },
+    {
+        "name": "HAMBURGER AVEC SAUCE FROMAGE",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_2"
+    },
+    {
+        "name": "CHICKEN BURGER",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 350,
+            "medium": null,
+            "large": 450
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_3"
+    },
+    {
+        "name": "FUMATO BURGER",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 300,
+            "medium": null,
+            "large": 400
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_4"
+    },
+    {
+        "name": "FOREST",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 300,
+            "medium": null,
+            "large": 400
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_5"
+    },
+    {
+        "name": "BURGUER SADOKI",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 500,
+            "medium": null,
+            "large": 600
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_6"
+    },
+    {
+        "name": "BIG BURGUER",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 450,
+            "medium": null,
+            "large": 800
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_7"
+    },
+    {
+        "name": "HOLLANDIA",
+        "desc": "",
+        "category": "burger",
+        "prices": {
+            "small": 400,
+            "medium": null,
+            "large": 500
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_8"
+    },
+    {
+        "name": "Sandwiche chawarma",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_9"
+    },
+    {
+        "name": "Sandwiche chawarma mixte",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 350,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_10"
+    },
+    {
+        "name": "Sandwiche Escalope Panné",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 350,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_11"
+    },
+    {
+        "name": "Sandwiche Escalope",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_12"
+    },
+    {
+        "name": "Sandwiche Crispy",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 350,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_13"
+    },
+    {
+        "name": "Sandwiche Viande Hachée",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_14"
+    },
+    {
+        "name": "Sandwiche Mariné",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_15"
+    },
+    {
+        "name": "Fromage",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 100,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_16"
+    },
+    {
+        "name": "Doublé",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_17"
+    },
+    {
+        "name": "3 Fromage",
+        "desc": "",
+        "category": "sandwich",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_18"
+    },
+    {
+        "name": "Tacos chawarma",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 400,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_19"
+    },
+    {
+        "name": "Tacos Mixte",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_20"
+    },
+    {
+        "name": "Tacos Escalope panné",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_21"
+    },
+    {
+        "name": "Tacos Crispy",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_22"
+    },
+    {
+        "name": "Tacos Viande Hachée",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_23"
+    },
+    {
+        "name": "Gratiné",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 150,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_24"
+    },
+    {
+        "name": "Taco Poulet pané",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_25"
+    },
+    {
+        "name": "Taco Viande Hachée",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_26"
+    },
+    {
+        "name": "Taco Mixte",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 550,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_27"
+    },
+    {
+        "name": "Taco Poulet",
+        "desc": "",
+        "category": "tacos",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_28"
+    },
+    {
+        "name": "Panuozzo Poulet",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_29"
+    },
+    {
+        "name": "Panuozzo Viande",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_30"
+    },
+    {
+        "name": "Panuozzo Mixte",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_31"
+    },
+    {
+        "name": "Panuozzo Végétarienne",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 400,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_32"
+    },
+    {
+        "name": "Panuozzo Royal",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_33"
+    },
+    {
+        "name": "Panuozzo Pané",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_34"
+    },
+    {
+        "name": "Panuozzo Papperoni",
+        "desc": "",
+        "category": "panuozzo",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [
+            {
+                "name": "هريسة",
+                "price": 0
+            },
+            {
+                "name": "مايونيز",
+                "price": 0
+            }
+        ],
+        "removableExtras": [
+            "خس (شلاضة)",
+            "طماطم",
+            "بصل"
+        ],
+        "available": true,
+        "image": "",
+        "id": "item_seed_35"
+    },
+    {
+        "name": "Pizza Margueritte",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 400,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_36"
+    },
+    {
+        "name": "Pizza Carre Classic",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 400,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_37"
+    },
+    {
+        "name": "Pizza Végétarienne",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_38"
+    },
+    {
+        "name": "Pizza Poulet",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_39"
+    },
+    {
+        "name": "Pizza Thon",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_40"
+    },
+    {
+        "name": "Pizza Forestiere",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_41"
+    },
+    {
+        "name": "Pizza Chawarma",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_42"
+    },
+    {
+        "name": "Pizza Kabab",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_43"
+    },
+    {
+        "name": "Pizza Bolognaise",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_44"
+    },
+    {
+        "name": "Pizza 4 Fromage",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_45"
+    },
+    {
+        "name": "Pizza fumécato",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_46"
+    },
+    {
+        "name": "Pizza Napolitaine",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_47"
+    },
+    {
+        "name": "Pizza Pépperoni",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_48"
+    },
+    {
+        "name": "Pizza 4 Saissons",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 800,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_49"
+    },
+    {
+        "name": "Pizza Crevettes",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 1200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_50"
+    },
+    {
+        "name": "Pizza Sadouki",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 1200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_51"
+    },
+    {
+        "name": "Fromage",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_52"
+    },
+    {
+        "name": "Ingredient",
+        "desc": "",
+        "category": "pizza",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_53"
+    },
+    {
+        "name": "Plat chawarma",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_54"
+    },
+    {
+        "name": "Plat chawarma mixte",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 800,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_55"
+    },
+    {
+        "name": "Plat Arabi 8 PCS",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_56"
+    },
+    {
+        "name": "Plat Arabi 12 PCS",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 1100,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_57"
+    },
+    {
+        "name": "Plat Arabi 16 PCS",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 1300,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_58"
+    },
+    {
+        "name": "Plat Arabi 24 PCS",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 1700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_59"
+    },
+    {
+        "name": "Supplement chawarma",
+        "desc": "",
+        "category": "chawarma",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_60"
+    },
+    {
+        "name": "Plat Escalope",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_61"
+    },
+    {
+        "name": "Plat Escalope Pané",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_62"
+    },
+    {
+        "name": "Plat Crispy",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_63"
+    },
+    {
+        "name": "Plat kentucky",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_64"
+    },
+    {
+        "name": "Plat poulet farci",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 800,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_65"
+    },
+    {
+        "name": "Plat Poulet 3 Fromage Gratiné",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 800,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_66"
+    },
+    {
+        "name": "Plat Cuisse Poulet farci",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_67"
+    },
+    {
+        "name": "Plat de poulet grillé à la crème",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 800,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_68"
+    },
+    {
+        "name": "Plat Emencé de veau",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 1200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_69"
+    },
+    {
+        "name": "Plat Cordon Bleu",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 900,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_70"
+    },
+    {
+        "name": "Plat Viande Hachée 200g",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 900,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_71"
+    },
+    {
+        "name": "Plat Filet à la Créme",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 1500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_72"
+    },
+    {
+        "name": "Plat Entrecote de boeuf Grillé",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 1200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_73"
+    },
+    {
+        "name": "Plat Frite",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 150,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_74"
+    },
+    {
+        "name": "Plat Riz",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 250,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_75"
+    },
+    {
+        "name": "Barquette de Frite",
+        "desc": "",
+        "category": "platter",
+        "prices": {
+            "small": null,
+            "medium": 70,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_76"
+    },
+    {
+        "name": "SALADE CÉSAR.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_77"
+    },
+    {
+        "name": "SALADE VARIÉE.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 300,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_78"
+    },
+    {
+        "name": "SALADE FROMAGE.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_79"
+    },
+    {
+        "name": "SALADE CAMEMBERT PANÉ.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_80"
+    },
+    {
+        "name": "SALADE CAMEMBERT GRILLÉ.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_81"
+    },
+    {
+        "name": "SALADE DE THON À LA CATALANE.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 350,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_82"
+    },
+    {
+        "name": "SALADE AUBERGINE.",
+        "desc": "",
+        "category": "salade",
+        "prices": {
+            "small": null,
+            "medium": 250,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_83"
+    },
+    {
+        "name": "Poulet.",
+        "desc": "",
+        "category": "gratin",
+        "prices": {
+            "small": null,
+            "medium": 400,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_84"
+    },
+    {
+        "name": "Viande.",
+        "desc": "",
+        "category": "gratin",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_85"
+    },
+    {
+        "name": "Mixte.",
+        "desc": "",
+        "category": "gratin",
+        "prices": {
+            "small": null,
+            "medium": 550,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_86"
+    },
+    {
+        "name": "Garnitures",
+        "desc": "",
+        "category": "gratin",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_87"
+    },
+    {
+        "name": "Spaghetti bolonaise",
+        "desc": "",
+        "category": "pasta",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_88"
+    },
+    {
+        "name": "Togliatelles au poulet",
+        "desc": "",
+        "category": "pasta",
+        "prices": {
+            "small": null,
+            "medium": 500,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_89"
+    },
+    {
+        "name": "Lasagne",
+        "desc": "",
+        "category": "pasta",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_90"
+    },
+    {
+        "name": "Chicken Alfredo",
+        "desc": "",
+        "category": "pasta",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_91"
+    },
+    {
+        "name": "Plat Brochettes Royal",
+        "desc": "",
+        "category": "brochette",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_92"
+    },
+    {
+        "name": "Plats Brochettes ChichTawak",
+        "desc": "",
+        "category": "brochette",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_93"
+    },
+    {
+        "name": "Plats Brochettes Kebab",
+        "desc": "",
+        "category": "brochette",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_94"
+    },
+    {
+        "name": "Plats Brochettes Mixte",
+        "desc": "",
+        "category": "brochette",
+        "prices": {
+            "small": null,
+            "medium": 1000,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_95"
+    },
+    {
+        "name": "Pièces Brochettes",
+        "desc": "",
+        "category": "brochette",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_96"
+    },
+    {
+        "name": "Piéce Escalope",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 250,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_97"
+    },
+    {
+        "name": "Piéce Escalope Pané",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 250,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_98"
+    },
+    {
+        "name": "Piéce Kentucky / Crispy",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 250,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_99"
+    },
+    {
+        "name": "Piéce Cordon Blue",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 700,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_100"
+    },
+    {
+        "name": "Piéce Poulet Farci",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_101"
+    },
+    {
+        "name": "Piéce Poulet 3 Fromage",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 600,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_102"
+    },
+    {
+        "name": "Piéce Viande 60g",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 150,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_103"
+    },
+    {
+        "name": "Piéce Viande .H 100g",
+        "desc": "",
+        "category": "piece",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_104"
+    },
+    {
+        "name": "Mojito 1L",
+        "desc": "",
+        "category": "jus",
+        "prices": {
+            "small": null,
+            "medium": 200,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_105"
+    },
+    {
+        "name": "Citron/Orange",
+        "desc": "",
+        "category": "jus",
+        "prices": {
+            "small": null,
+            "medium": 150,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_106"
+    },
+    {
+        "name": "Verre Mojito",
+        "desc": "",
+        "category": "jus",
+        "prices": {
+            "small": null,
+            "medium": 100,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_107"
+    },
+    {
+        "name": "Verre Citron/Orange",
+        "desc": "",
+        "category": "jus",
+        "prices": {
+            "small": null,
+            "medium": 70,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_108"
+    },
+    {
+        "name": "Jus 1L /Soda 1L",
+        "desc": "",
+        "category": "drink",
+        "prices": {
+            "small": null,
+            "medium": 150,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_109"
+    },
+    {
+        "name": "Jus / Soda PM",
+        "desc": "",
+        "category": "drink",
+        "prices": {
+            "small": null,
+            "medium": 70,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_110"
+    },
+    {
+        "name": "Eau Minerale PM",
+        "desc": "",
+        "category": "drink",
+        "prices": {
+            "small": null,
+            "medium": 30,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_111"
+    },
+    {
+        "name": "Eau Minerale GM",
+        "desc": "",
+        "category": "drink",
+        "prices": {
+            "small": null,
+            "medium": 50,
+            "large": null
+        },
+        "paidExtras": [],
+        "removableExtras": [],
+        "available": true,
+        "image": "",
+        "id": "item_seed_112"
+    }
+];
+
+
+const DEFAULT_SETTINGS = {
+    restaurantName: 'المطعم الفاخر',
+    deliveryFee: 200,
+    adminPassword: 'admin',
+    isOpen: true,
+    estimatedPrepMinutes: 30,
+    soundEnabled: true,
+    themeColors: { ...luxuryColors }
+};
+
+let loggedCustomer = null; /* حساب الزبون المسجّل دخوله حالياً (إن وجد) */
+
+function defaultState() {
+    return {
+        menu: [],
+        orders: [],
+        archivedOrders: [],
+        customers: [],
+        settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
+        lastOrderSerial: 0,
+        updatedAt: new Date().toISOString()
+    };
+}
+
+let appState = defaultState();
+let currentCart = [];
+let isLightMode = localStorage.getItem('theme_mode') === 'light';
+let isSyncing = false;
+let hasLoadedOnce = false;
+let pollTimer = null;
+let lastKnownPendingIds = new Set();
+let isAdminLoggedIn = false;
+
+
+/* --- تحديث تلقائي للإضافات والمكونات القابلة للإزالة ---
+   يشتغل في كل مرة يتم فيها تحميل القائمة (من JSONBin أو الكاش أو الافتراضي)
+   بدون الحاجة لتعديل يدوي في لوحة الأدمن أو في قاعدة البيانات مباشرة */
+function patchMenuExtras(menu) {
+    if (!Array.isArray(menu)) return menu;
+
+    const removableTargetCategories = ["panuozzo", "sandwich", "tacos", "burger"];
+    const removableToAdd = ["خس (شلاضة)", "طماطم", "بصل"];
+    const paidToAdd = [
+        { name: "الهريسة", price: 0 },
+        { name: "مايونيز", price: 0 }
+    ];
+
+    return menu.map(item => {
+        // 1. الهريسة والمايونيز بـ 0 دينار لكل الأصناف بلا استثناء
+        if (!Array.isArray(item.paidExtras)) item.paidExtras = [];
+        paidToAdd.forEach(pe => {
+            if (!item.paidExtras.some(e => e.name === pe.name)) {
+                item.paidExtras.push({ ...pe });
+            }
+        });
+
+        // 2. خيارات الإزالة فقط في: البانوزو، السندويتشات، تاكوس، البرغر
+        if (removableTargetCategories.includes(item.category)) {
+            if (!Array.isArray(item.removableExtras)) item.removableExtras = [];
+            removableToAdd.forEach(ing => {
+                if (!item.removableExtras.includes(ing)) {
+                    item.removableExtras.push(ing);
+                }
+            });
+        }
+        return item;
+    });
+}
+
+/* طبقة توافق: تحويل بيانات قديمة (legacy localStorage format) إلى الشكل الجديد */
+function normalizeState(raw) {
+    const state = defaultState();
+    if (!raw || typeof raw !== 'object') return state;
+
+    if (Array.isArray(raw.menu)) state.menu = raw.menu;
+    state.menu = patchMenuExtras(state.menu);
+    if (Array.isArray(raw.orders)) state.orders = raw.orders;
+    if (Array.isArray(raw.archivedOrders)) state.archivedOrders = raw.archivedOrders;
+    if (typeof raw.lastOrderSerial === 'number') state.lastOrderSerial = raw.lastOrderSerial;
+
+    const s = raw.settings || {};
+    state.settings.restaurantName = s.restaurantName || s.name || DEFAULT_SETTINGS.restaurantName;
+    state.settings.deliveryFee = (s.deliveryFee !== undefined ? s.deliveryFee : DEFAULT_SETTINGS.deliveryFee);
+    state.settings.adminPassword = s.adminPassword || s.password || DEFAULT_SETTINGS.adminPassword;
+    state.settings.isOpen = (s.isOpen !== undefined ? !!s.isOpen : true);
+    state.settings.estimatedPrepMinutes = s.estimatedPrepMinutes || DEFAULT_SETTINGS.estimatedPrepMinutes;
+    state.settings.soundEnabled = (s.soundEnabled !== undefined ? !!s.soundEnabled : true);
+    state.settings.themeColors = s.themeColors || raw.colors || { ...luxuryColors };
+
+    state.customers = Array.isArray(raw.customers) ? raw.customers : [];
+
+    // تحويل حالات الطلبات القديمة
+    state.orders = state.orders.map(normalizeOrder);
+    state.archivedOrders = state.archivedOrders.map(normalizeOrder);
+
+    // فصل الطلبات المكتملة/الملغاة تلقائياً إلى الأرشيف إن لم تكن قد فُصلت
+    const stillActive = [];
+    state.orders.forEach(o => {
+        if (o.status === 'delivered' || o.status === 'cancelled') state.archivedOrders.push(o);
+        else stillActive.push(o);
+    });
+    state.orders = stillActive;
+
+    // ترقيم تلقائي لأي طلبات بدون رقم تسلسلي
+    let maxSerial = state.lastOrderSerial;
+    [...state.orders, ...state.archivedOrders].forEach(o => {
+        if (!o.serial) {
+            maxSerial += 1;
+            o.serial = formatSerial(maxSerial);
+        }
+    });
+    state.lastOrderSerial = Math.max(maxSerial, state.lastOrderSerial);
+
+    return state;
+}
+
+function normalizeOrder(o) {
+    if (!o.status || o.status === 'done') o.status = o.status === 'done' ? 'delivered' : (o.status || 'pending');
+    if (!['pending', 'preparing', 'out_for_delivery', 'delivered', 'cancelled'].includes(o.status)) o.status = 'pending';
+    if (!o.items) o.items = [];
+    if (o.note === undefined) o.note = '';
+    return o;
+}
+
+function formatSerial(n) { return 'ORD-' + String(n).padStart(6, '0'); }
+
+/* =====================================================================
+   2) دورة حياة التطبيق: التحميل الأولي، المزامنة، الاستطلاع الدوري
+   ===================================================================== */
+async function initApp() {
+    if (isLightMode) document.body.classList.add('light-mode');
+
+    // أولاً: تحقق من localStorage
+    const cached = localStorage.getItem('restaurant_state_cache');
+    if (cached) {
+        try {
+            appState = normalizeState(JSON.parse(cached));
+            setConnectionOk();
+            applyColorsToCSS();
+            applyRestaurantSettingsToUI();
+            hasLoadedOnce = true;
+            
+            const savedEmail = localStorage.getItem('customer_session_email');
+            if (savedEmail) {
+                loggedCustomer = (appState.customers || []).find(c => c.email === savedEmail) || null;
+            }
+
+            document.getElementById('customer-view').classList.remove('hidden');
+            renderCustomerMenu();
+            renderLiveOrderStatus();
+            resetItemForm();
+            startPolling();
+            
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.add('fade-out');
+            setTimeout(() => overlay.style.display = 'none', 550);
+            return;
+        } catch (e) {
+            console.warn('خطأ في قراءة localStorage', e);
+        }
+    }
+
+    // ثانياً: جرّب تحميل من JSONBin
+    try {
+        const remote = await fetchState();
+        appState = normalizeState(remote);
+        if (!appState.menu || appState.menu.length === 0) {
+            appState.menu = JSON.parse(JSON.stringify(DEFAULT_MENU));
+            try { await saveState(appState); } catch (e) { console.warn('لم نتمكن من حفظ في JSONBin'); }
+        }
+        localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
+        setConnectionOk();
+    } catch (err) {
+        // ثالثاً: استخدم البيانات الافتراضية وحاول حفظها في JSONBin
+        console.warn('جرب استخدام البيانات الافتراضية', err);
+        appState = defaultState();
+        appState.menu = JSON.parse(JSON.stringify(DEFAULT_MENU));
+        localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
+        
+        // حاول حفظ البيانات الافتراضية في JSONBin
+        try {
+            await saveState(appState);
+            setConnectionOk();
+        } catch (saveErr) {
+            console.warn('لم نتمكن من الحفظ في JSONBin أيضاً', saveErr);
+            setConnectionError();
+        }
+    }
+
+    applyColorsToCSS();
+    applyRestaurantSettingsToUI();
+    hasLoadedOnce = true;
+
+    const savedEmail = localStorage.getItem('customer_session_email');
+    if (savedEmail) {
+        loggedCustomer = (appState.customers || []).find(c => c.email === savedEmail) || null;
+    }
+
+    document.getElementById('customer-view').classList.remove('hidden');
+    renderCustomerMenu();
+    renderLiveOrderStatus();
+    resetItemForm();
+    startPolling();
+
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('fade-out');
+    setTimeout(() => overlay.style.display = 'none', 550);
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+
+/* تسجيل الـ service worker ليصبح الموقع قابلاً للتثبيت كتطبيق على الشاشة الرئيسية */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+}
+
+/* حفظ الحالة الحالية على JSONBin مع مؤشر حفظ ومعالجة أخطاء */
+async function persistState(successMsg) {
+    showSaveIndicator(true);
+    try {
+        await saveState(appState);
+        localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
+        setConnectionOk();
+        if (successMsg) showToast(successMsg, 'success');
+        return true;
+    } catch (err) {
+        console.error('فشل الحفظ على JSONBin', err);
+        localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
+        setConnectionError();
+        if (err && err.status === 429) {
+            showToast('تم تجاوز الحد المسموح من الطلبات على الخادم مؤقتاً. تم الحفظ محلياً، وسيُعاد رفعه تلقائياً عند أول تحديث ناجح.', 'error');
+        } else if (err && err.name === 'AbortError') {
+            showToast('استغرق الاتصال بالخادم وقتاً طويلاً. تم الحفظ محلياً وسيُعاد المحاولة.', 'error');
+        } else {
+            showToast('تعذّر الحفظ على الخادم، تم الحفظ محلياً مؤقتاً وسيُعاد المحاولة لاحقاً.', 'error');
+        }
+        return false;
+    } finally {
+        showSaveIndicator(false);
+    }
+}
+
+function showSaveIndicator(show) {
+    const el = document.getElementById('save-indicator');
+    if (show) { isSyncing = true; el.classList.add('show'); }
+    else { isSyncing = false; setTimeout(() => el.classList.remove('show'), 400); }
+}
+
+function setConnectionOk() {
+    document.getElementById('connection-banner')?.classList.add('hidden');
+    document.getElementById('admin-connection-banner')?.classList.add('hidden');
+}
+function setConnectionError() {
+    document.getElementById('connection-banner')?.classList.remove('hidden');
+    document.getElementById('admin-connection-banner')?.classList.remove('hidden');
+}
+
+/* =====================================================================
+   الاستطلاع الدوري (Polling)
+   بفاصل دقيقة ونصف (90 ثانية) لتفادي استهلاك حصة الطلبات المجانية للخادم بسرعة،
+   مع إيقاف تلقائي عندما تكون الصفحة غير ظاهرة (تبويب آخر مفتوح)، وتباعد
+   تصاعدي (backoff) عند تكرار الفشل حتى لا نُثقل على الخادم ونحن غير متصلين أصلاً.
+   ===================================================================== */
+const POLL_BASE_INTERVAL_MS = 90000;  // دقيقة ونصف
+const POLL_MAX_INTERVAL_MS = 360000;  // 6 دقائق كحد أقصى عند تكرار الفشل
+let currentPollInterval = POLL_BASE_INTERVAL_MS;
+let pollFailureStreak = 0;
+
+function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    currentPollInterval = POLL_BASE_INTERVAL_MS;
+    pollFailureStreak = 0;
+    pollTimer = setInterval(pollForUpdates, currentPollInterval);
+}
+
+function restartPollingWithInterval(ms) {
+    if (pollTimer) clearInterval(pollTimer);
+    currentPollInterval = ms;
+    pollTimer = setInterval(pollForUpdates, currentPollInterval);
+}
+
+async function pollForUpdates() {
+    if (isSyncing) return;
+    if (document.hidden) return; // التبويب غير ظاهر حالياً — لا داعي لاستهلاك حصة الطلبات
+    try {
+        const remote = await fetchState();
+        const newState = normalizeState(remote);
+        setConnectionOk();
+        pollFailureStreak = 0;
+        if (currentPollInterval !== POLL_BASE_INTERVAL_MS) restartPollingWithInterval(POLL_BASE_INTERVAL_MS);
+
+        // كشف الطلبات الجديدة (قيد الانتظار) لتنبيه الإدمن
+        const newPendingIds = new Set(newState.orders.filter(o => o.status === 'pending').map(o => o.id));
+        let hasNewOrder = false;
+        newPendingIds.forEach(id => { if (!lastKnownPendingIds.has(id)) hasNewOrder = true; });
+
+        appState = newState;
+        localStorage.setItem('restaurant_state_cache', JSON.stringify(appState));
+
+        if (hasLoadedOnce && hasNewOrder && lastKnownPendingIds.size > 0) {
+            notifyNewOrder();
+        }
+        lastKnownPendingIds = newPendingIds;
+
+        // إعادة عرض الواجهة النشطة فقط
+        const adminView = document.getElementById('admin-view');
+        if (!adminView.classList.contains('hidden')) {
+            renderOrders();
+            renderArchive();
+            updateAdminStats();
+        }
+        const customerView = document.getElementById('customer-view');
+        if (!customerView.classList.contains('hidden')) {
+            applyRestaurantSettingsToUI();
+            renderLiveOrderStatus();
+        }
+        applyColorsToCSS();
+    } catch (err) {
+        setConnectionError();
+        pollFailureStreak++;
+        const nextInterval = Math.min(POLL_BASE_INTERVAL_MS * Math.pow(2, pollFailureStreak), POLL_MAX_INTERVAL_MS);
+        if (nextInterval !== currentPollInterval) restartPollingWithInterval(nextInterval);
+    }
+}
+
+// استئناف الاستطلاع فوراً عند عودة المستخدم إلى التبويب بعد غياب
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pollForUpdates();
+});
+
+function manualRefresh() {
+    showToast('جاري التحديث...', 'info');
+    pollForUpdates();
+}
+
+/* =====================================================================
+   3) التوست والتنبيهات
+   ===================================================================== */
+function showToast(msg, type) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + (type || '');
+    const icon = type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️');
+    toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 350);
+    }, 3500);
+}
+
+/* =====================================================================
+   4) صوت التنبيه عند طلب جديد (Web Audio API)
+   ===================================================================== */
+let audioCtx = null;
+function playOrderChime() {
+    if (!appState.settings.soundEnabled) return;
+    try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        [880, 1108, 1318].forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.0001, now + i * 0.16);
+            gain.gain.exponentialRampToValueAtTime(0.28, now + i * 0.16 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.16 + 0.35);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(now + i * 0.16);
+            osc.stop(now + i * 0.16 + 0.4);
+        });
+    } catch (e) { console.warn('تعذّر تشغيل صوت التنبيه', e); }
+}
+function testChime() { playOrderChime(); showToast('🔊 هذا هو صوت تنبيه الطلب الجديد', 'info'); }
+
+/* =====================================================================
+   5) الثيمات والألوان
+   ===================================================================== */
+function toggleTheme() {
+    isLightMode = !isLightMode;
+    document.body.classList.toggle('light-mode', isLightMode);
+    localStorage.setItem('theme_mode', isLightMode ? 'light' : 'dark');
+}
+
+function hexToRgb(hex) {
+    const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
+    return m ? `${parseInt(m[1],16)}, ${parseInt(m[2],16)},${parseInt(m[3],16)}` : '212, 175, 55';
+}
+
+function applyColorsToCSS() {
+    const c = appState.settings.themeColors || luxuryColors;
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', c.primary);
+    root.style.setProperty('--primary-rgb', hexToRgb(c.primary));
+    root.style.setProperty('--bg-dark', c.bgDark);
+    root.style.setProperty('--surface-dark', c.surfaceDark);
+    root.style.setProperty('--bg-light', c.bgLight);
+    root.style.setProperty('--surface-light', c.surfaceLight);
+}
+
+function populateColorInputs() {
+    const c = appState.settings.themeColors || luxuryColors;
+    document.getElementById('color-primary').value = c.primary;
+    document.getElementById('color-bg-dark').value = c.bgDark;
+    document.getElementById('color-surface-dark').value = c.surfaceDark;
+    document.getElementById('color-bg-light').value = c.bgLight;
+    document.getElementById('color-surface-light').value = c.surfaceLight;
+    renderColorPreview();
+}
+
+function renderColorPreview() {
+    const c = {
+        primary: document.getElementById('color-primary').value,
+        bgDark: document.getElementById('color-bg-dark').value,
+        surfaceDark: document.getElementById('color-surface-dark').value,
+        bgLight: document.getElementById('color-bg-light').value,
+        surfaceLight: document.getElementById('color-surface-light').value
+    };
+    const row = document.getElementById('color-preview-row');
+    row.innerHTML = Object.values(c).map(hex => `<div class="color-swatch" style="background:${hex}"></div>`).join('');
+    ['color-primary','color-bg-dark','color-surface-dark','color-bg-light','color-surface-light'].forEach(id => {
+        document.getElementById(id).oninput = renderColorPreview;
+    });
+}
+
+async function saveColors() {
+    appState.settings.themeColors = {
+        primary: document.getElementById('color-primary').value,
+        bgDark: document.getElementById('color-bg-dark').value,
+        surfaceDark: document.getElementById('color-surface-dark').value,
+        bgLight: document.getElementById('color-bg-light').value,
+        surfaceLight: document.getElementById('color-surface-light').value
+    };
+    applyColorsToCSS();
+    await persistState('تم تطبيق الألوان وحفظها بنجاح');
+}
+
+async function resetColorsToLuxury() {
+    appState.settings.themeColors = { ...luxuryColors };
+    populateColorInputs();
+    applyColorsToCSS();
+    await persistState('تمت استعادة ألوان الفخامة الافتراضية');
+}
+
+function renderPresets() {
+    const grid = document.getElementById('presets-grid');
+    grid.innerHTML = THEME_PRESETS.map((p, i) => `
+        <div class="theme-preset" onclick="applyPreset(${i})">
+            <div class="preset-dots">
+                <span style="background:${p.colors.primary}"></span>
+                <span style="background:${p.colors.bgDark}"></span>
+                <span style="background:${p.colors.surfaceLight}"></span>
+            </div>
+            <div style="font-size:11.5px; font-weight:700;">${p.name}</div>
+        </div>
+    `).join('');
+}
+
+async function applyPreset(index) {
+    const preset = THEME_PRESETS[index];
+    appState.settings.themeColors = { ...preset.colors };
+    populateColorInputs();
+    applyColorsToCSS();
+    await persistState(`تم تطبيق قالب "${preset.name}"`);
+}
+
+/* =====================================================================
+   6.5) واجهة المنيو للزبون
+   ===================================================================== */
+const defaultImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+const categoryNames = { 
+    pizza: 'Nos Pizzas', 
+    panuozzo: 'Nos Panuozzo', 
+    tacos: 'Nos Tacos', 
+    burger: 'Nos Humbergers', 
+    sandwich: 'Nos Sandwiches', 
+    salade: 'Les Entrées', 
+    gratin: 'Gratins', 
+    pasta: 'Pasta', 
+    chawarma: 'Nos chawarma', 
+    platter: 'Nos Plats', 
+    brochette: 'Nos Brochettes', 
+    piece: 'Les Pièces', 
+    jus: 'Jus Maison', 
+    drink: 'Les Boisons', 
+    extra: 'Supplements' 
+};
+const categoryIcons = { pizza: '🍕', panuozzo: '🥙', tacos: '🌯', burger: '🍔', sandwich: '🥪', salade: '🥗', gratin: '🧀', pasta: '🍝', chawarma: '🍗', platter: '🍽️', brochette: '🍢', piece: '🍖', jus: '🧃', drink: '🥤', extra: '🍟', dessert: '🍰' };
+
+function renderCustomerMenu() {
+    const container = document.getElementById('menu-container');
+    container.innerHTML = '';
+    const availableItems = appState.menu.filter(i => i.available !== false);
+
+    if (availableItems.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span class="emoji">🍽️</span>القائمة قيد التجهيز حالياً، عد إلينا قريباً!</div>`;
+        return;
+    }
+
+    for (const cat in categoryNames) {
+        const items = availableItems.filter(i => i.category === cat);
+        if (items.length === 0) continue;
+
+        const section = document.createElement('div');
+        section.innerHTML = `<div class="category-heading">${categoryIcons[cat] || ''}${categoryNames[cat]}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'items-grid';
+
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+
+            const defaultSize = item.prices.medium ? 'medium' : (item.prices.small ? 'small' : 'large');
+            const defaultPrice = parseInt(item.prices[defaultSize]) || 0;
+
+            let sizesHtml = '';
+            if (item.prices.small || item.prices.medium || item.prices.large) {
+                sizesHtml = `<div class="size-options">`;
+                if (item.prices.small) sizesHtml += `<div class="size-pill ${defaultSize==='small'?'active':''}" onclick="selectSize('${item.id}', 'small', this)">صغير</div>`;
+                if (item.prices.medium) sizesHtml += `<div class="size-pill ${defaultSize==='medium'?'active':''}" onclick="selectSize('${item.id}', 'medium', this)">وسط</div>`;
+                if (item.prices.large) sizesHtml += `<div class="size-pill ${defaultSize==='large'?'active':''}" onclick="selectSize('${item.id}', 'large', this)">كبير</div>`;
+                sizesHtml += `</div><input type="hidden" id="selected-size-${item.id}" value="${defaultSize}">`;
+            }
+
+            let extrasHtml = '';
+            if (item.paidExtras && item.paidExtras.length > 0) {
+                extrasHtml += `<div class="extras-section"><div class="extras-title">➕ إضافات للطبق</div>`;
+                item.paidExtras.forEach(ex => {
+                    extrasHtml += `<label class="check-item"><span>${ex.name} (+${ex.price} دج)</span> <input type="checkbox" class="ex-cb-${item.id}" data-price="${ex.price}" data-name="${ex.name}" onchange="updateLivePrice('${item.id}')"></label>`;
+                });
+                extrasHtml += `</div>`;
+            }
+
+            if (item.removableExtras && item.removableExtras.length > 0) {
+                extrasHtml += `<div class="extras-section"><div class="extras-title">❌ تفضيلات الإزالة</div>`;
+                item.removableExtras.forEach(rem => {
+                    extrasHtml += `<label class="check-item"><span>بدون ${rem}</span> <input type="checkbox" class="rem-cb-${item.id}" data-name="بدون ${rem}"></label>`;
+                });
+                extrasHtml += `</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="item-image-wrap">
+                    <img src="${item.image || defaultImage}" class="item-image" loading="lazy">
+                    <div class="item-badge">${categoryIcons[cat] || ''}${categoryNames[cat]}</div>
+                </div>
+                <div class="item-content">
+                    <div class="item-name">${escapeHtml(item.name)}</div>${item.desc ? `<div class="item-desc">${escapeHtml(item.desc)}</div>` : ''}
+                    ${sizesHtml}${extrasHtml}
+                    <div class="item-footer">
+                        <span class="price-tag" id="live-price-${item.id}">${defaultPrice} دج</span>
+                        <button class="btn" onclick="addToCart('${item.id}')">🛒 إضافة</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        container.appendChild(section);
+    }
+    
+    // تفعيل السحب الأفقي للـ carousel
+    enableCarouselDrag();
+}
+
+function enableCarouselDrag() {
+    const grids = document.querySelectorAll('.items-grid');
+    grids.forEach(grid => {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        grid.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - grid.offsetLeft;
+            scrollLeft = grid.scrollLeft;
+            grid.style.cursor = 'grabbing';
+        });
+
+        grid.addEventListener('mouseleave', () => {
+            isDown = false;
+            grid.style.cursor = 'grab';
+        });
+
+        grid.addEventListener('mouseup', () => {
+            isDown = false;
+            grid.style.cursor = 'grab';
+        });
+
+        grid.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - grid.offsetLeft;
+            const walk = (x - startX) * 0.5;
+            grid.scrollLeft = scrollLeft - walk;
+        });
+
+        // دعم Touch للأجهزة المحمولة
+        let touchStartX;
+        let touchScrollLeft;
+
+        grid.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].pageX - grid.offsetLeft;
+            touchScrollLeft = grid.scrollLeft;
+        });
+
+        grid.addEventListener('touchmove', (e) => {
+            if (!touchStartX) return;
+            const x = e.touches[0].pageX - grid.offsetLeft;
+            const walk = (x - touchStartX) * 1;
+            grid.scrollLeft = touchScrollLeft - walk;
+        });
+
+        grid.addEventListener('touchend', () => {
+            touchStartX = null;
+        });
+    });
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.innerText = str || '';
+    return div.innerHTML;
+}
+
+function selectSize(itemId, size, element) {
+    const container = element.parentElement;
+    container.querySelectorAll('.size-pill').forEach(p => p.classList.remove('active'));
+    element.classList.add('active');
+    document.getElementById(`selected-size-${itemId}`).value = size;
+    updateLivePrice(itemId);
+}
+
+function updateLivePrice(itemId) {
+    const item = appState.menu.find(i => String(i.id) === String(itemId));
+    if (!item) return;
+    const sizeInput = document.getElementById(`selected-size-${itemId}`);
+    const size = sizeInput ? sizeInput.value : 'medium';
+    let total = parseInt(item.prices[size]) || 0;
+    document.querySelectorAll(`.ex-cb-${itemId}:checked`).forEach(cb => total += parseInt(cb.dataset.price) || 0);
+    document.getElementById(`live-price-${itemId}`).innerText = total + ' دج';
+}
+
+/* =====================================================================
+   6.6) السلة والطلبات
+   ===================================================================== */
+function addToCart(itemId) {
+    if (!appState.settings.isOpen) { showToast('عذراً، المطعم مغلق حالياً ولا يمكن الطلب', 'error'); return; }
+    const item = appState.menu.find(i => String(i.id) === String(itemId));
+    if (!item) return;
+    const sizeInput = document.getElementById(`selected-size-${itemId}`);
+    const size = sizeInput ? sizeInput.value : 'medium';
+    const basePrice = parseInt(item.prices[size]) || 0;
+
+    let selectedExtras = [];
+    let extrasTotal = 0;
+    document.querySelectorAll(`.ex-cb-${itemId}:checked`).forEach(cb => {
+        selectedExtras.push(cb.dataset.name);
+        extrasTotal += parseInt(cb.dataset.price) || 0;
+    });
+    document.querySelectorAll(`.rem-cb-${itemId}:checked`).forEach(cb => {
+        selectedExtras.push(cb.dataset.name);
+    });
+
+    const sizeAr = size === 'small' ? 'صغير' : (size === 'medium' ? 'متوسط' : 'كبير');
+
+    currentCart.push({ itemId: item.id, name: item.name, size: sizeAr, extras: selectedExtras, price: basePrice + extrasTotal });
+    updateCartUI();
+    showToast('تمت الإضافة للسلة 🛒', 'success');
+}
+
+function updateCartUI() {
+    const cartBtn = document.getElementById('floating-cart');
+    if (currentCart.length > 0 && appState.settings.isOpen) {
+        cartBtn.classList.remove('hidden');
+        document.getElementById('cart-count').innerText = currentCart.length;
+        const total = currentCart.reduce((sum, item) => sum + item.price, 0);
+        document.getElementById('cart-total-float').innerText = total + ' دج';
+    } else {
+        cartBtn.classList.add('hidden');
+        if (currentCart.length === 0) closeModal('cart-modal');
+    }
+}
+
+function openCartModal() {
+    const list = document.getElementById('cart-items-list');
+    list.innerHTML = '';
+    let subtotal = 0;
+
+    currentCart.forEach((item, index) => {
+        subtotal += item.price;
+        const extrasText = item.extras.length > 0 ? `<div style="font-size:12.5px; color:var(--danger-color); margin-top:4px;">${item.extras.join('، ')}</div>` : '';
+        list.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; background: var(--input-bg); padding:12px; border-radius:12px; margin-bottom:10px;">
+                <div>
+                    <div style="font-weight:800; font-size:15px;">${escapeHtml(item.name)} <span style="color:var(--primary-color); font-size:12.5px">(${item.size})</span></div>${extrasText}
+                </div>
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <span style="font-weight:800; color:var(--primary-color);">${item.price} دج</span>
+                    <button onclick="removeFromCart(${index})" style="background:none; border:none; color:var(--danger-color); font-size:22px; cursor:pointer;">×</button>
+                </div>
+            </div>
+        `;
+    });
+
+    const deliveryFee = parseInt(appState.settings.deliveryFee) || 0;
+    document.getElementById('cart-subtotal').innerText = subtotal + ' دج';
+    document.getElementById('cart-delivery').innerText = deliveryFee + ' دج';
+    document.getElementById('cart-final-total').innerText = (subtotal + deliveryFee) + ' دج';
+    document.getElementById('cart-eta-hint').innerText = `⏱️ وقت التحضير التقريبي: ${appState.settings.estimatedPrepMinutes || 30} دقيقة`;
+    document.getElementById('cart-modal').classList.add('show');
+    refreshCartAuthGate();
+    prefillOrderFormFromAccount();
+}
+
+/* يمنع إتمام الطلب دون تسجيل الدخول، لأن حساب الزبون هو ما يتيح متابعة حالة الطلب */
+function refreshCartAuthGate() {
+    const notice = document.getElementById('cart-login-required');
+    const fields = document.getElementById('cart-order-fields');
+    if (!notice || !fields) return;
+    if (loggedCustomer) {
+        notice.classList.add('hidden');
+        fields.classList.remove('hidden');
+    } else {
+        notice.classList.remove('hidden');
+        fields.classList.add('hidden');
+    }
+}
+
+function removeFromCart(index) {
+    currentCart.splice(index, 1);
+    updateCartUI();
+    if (currentCart.length > 0) openCartModal();
+}
+
+function validateAlgerianPhone(phone) {
+    return /^(05|06|07)\d{8}$/.test(phone.trim());
+}
+
+/* =====================================================================
+   حسابات الزبائن: كل زبون يسجّل بإيميله ليتابع حالة طلباته الخاصة فقط
+   ===================================================================== */
+function normalizeEmail(e) { return (e || '').trim().toLowerCase(); }
+
+function openAccountModal() {
+    refreshAccountModalView();
+    document.getElementById('account-modal').classList.add('show');
+}
+
+function refreshAccountModalView() {
+    const loggedOut = document.getElementById('account-logged-out');
+    const loggedIn = document.getElementById('account-logged-in');
+    if (loggedCustomer) {
+        loggedOut.classList.add('hidden');
+        loggedIn.classList.remove('hidden');
+        document.getElementById('acc-welcome-name').innerText = loggedCustomer.name;
+        document.getElementById('acc-welcome-email').innerText = loggedCustomer.email;
+    } else {
+        loggedOut.classList.remove('hidden');
+        loggedIn.classList.add('hidden');
+    }
+}
+
+function switchAccountTab(tab) {
+    document.getElementById('acc-form-login').classList.toggle('hidden', tab !== 'login');
+    document.getElementById('acc-form-signup').classList.toggle('hidden', tab !== 'signup');
+    document.getElementById('acc-tab-login-btn').classList.toggle('active', tab === 'login');
+    document.getElementById('acc-tab-signup-btn').classList.toggle('active', tab === 'signup');
+}
+
+async function customerSignup() {
+    const name = document.getElementById('acc-signup-name').value.trim();
+    const email = normalizeEmail(document.getElementById('acc-signup-email').value);
+    const password = document.getElementById('acc-signup-password').value;
+
+    if (!name || !email || !password) { showToast('يرجى تعبئة جميع الحقول', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('بريد إلكتروني غير صحيح', 'error'); return; }
+    if (password.length < 4) { showToast('كلمة المرور يجب أن تكون 4 أحرف على الأقل', 'error'); return; }
+    if (!Array.isArray(appState.customers)) appState.customers = [];
+    if (appState.customers.some(c => c.email === email)) { showToast('هذا البريد مسجّل مسبقاً، سجّل الدخول بدلاً من ذلك', 'error'); return; }
+
+    const customer = { id: Date.now(), name, email, password, phone: '' };
+    appState.customers.push(customer);
+    loggedCustomer = customer;
+    localStorage.setItem('customer_session_email', email);
+
+    document.getElementById('acc-signup-name').value = '';
+    document.getElementById('acc-signup-email').value = '';
+    document.getElementById('acc-signup-password').value = '';
+
+    await persistState();
+    refreshAccountModalView();
+    prefillOrderFormFromAccount();
+    refreshCartAuthGate();
+    renderLiveOrderStatus();
+    showToast(`مرحباً بك ${customer.name}! تم إنشاء حسابك 🎉`, 'success');
+}
+
+function customerLogin() {
+    const email = normalizeEmail(document.getElementById('acc-login-email').value);
+    const password = document.getElementById('acc-login-password').value;
+    const customer = (appState.customers || []).find(c => c.email === email && c.password === password);
+    if (!customer) { showToast('البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error'); return; }
+
+    loggedCustomer = customer;
+    localStorage.setItem('customer_session_email', email);
+    document.getElementById('acc-login-email').value = '';
+    document.getElementById('acc-login-password').value = '';
+    refreshAccountModalView();
+    prefillOrderFormFromAccount();
+    refreshCartAuthGate();
+    renderLiveOrderStatus();
+    showToast(`مرحباً بعودتك، ${customer.name}! 👋`, 'success');
+}
+
+function customerLogout() {
+    loggedCustomer = null;
+    localStorage.removeItem('customer_session_email');
+    refreshAccountModalView();
+    refreshCartAuthGate();
+    renderLiveOrderStatus();
+    showToast('تم تسجيل الخروج', 'info');
+}
+
+function prefillOrderFormFromAccount() {
+    if (!loggedCustomer) return;
+    const nameEl = document.getElementById('order-name');
+    const phoneEl = document.getElementById('order-phone');
+    if (nameEl && !nameEl.value) nameEl.value = loggedCustomer.name;
+    if (phoneEl && !phoneEl.value && loggedCustomer.phone) phoneEl.value = loggedCustomer.phone;
+}
+
+function openMyOrdersModal() {
+    if (!loggedCustomer) return;
+    closeModal('account-modal');
+    renderMyOrders();
+    document.getElementById('my-orders-modal').classList.add('show');
+}
+
+/* يعرض لكل زبون طلباته وحالتها الخاصة فقط، منفصلة تماماً عن بقية الزبائن */
+function renderMyOrders() {
+    const container = document.getElementById('my-orders-list');
+    const mine = [...appState.orders, ...appState.archivedOrders]
+        .filter(o => o.customerEmail === loggedCustomer.email)
+        .sort((a, b) => b.id - a.id);
+
+    if (mine.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span class="emoji">🧾</span>لا توجد طلبات بعد</div>`;
+        return;
+    }
+    container.innerHTML = mine.map(o => `
+        <div class="admin-card" style="padding:14px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <div style="font-weight:800;">${o.serial || ''}</div>
+                    <div class="text-muted" style="font-size:12px;">🕒 ${o.date}</div>
+                </div>
+                <span class="order-status-badge" style="background:${STATUS_COLORS[o.status] || '#666'};">${STATUS_LABELS[o.status] || o.status}</span>
+            </div>
+            ${o.status !== 'cancelled' ? buildStepperHtml(o) : ''}
+            <div style="font-weight:900; margin-top:10px;">الإجمالي: <span style="color:var(--primary-color)">${o.total} دج</span></div>
+        </div>
+    `).join('');
+}
+
+/* بطاقة دائمة الظهور في الصفحة الرئيسية تُظهر حالة آخر طلب للزبون فوراً دون الحاجة لفتح "طلباتي" */
+function renderLiveOrderStatus() {
+    const box = document.getElementById('live-order-status');
+    if (!box) return;
+
+    if (!loggedCustomer) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+
+    const mine = [...appState.orders, ...(appState.archivedOrders || [])]
+        .filter(o => o.customerEmail === loggedCustomer.email)
+        .sort((a, b) => b.id - a.id);
+
+    const latest = mine[0];
+    if (!latest) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+
+    const accent = STATUS_COLORS[latest.status] || 'var(--primary-color)';
+
+    if (latest.status === 'cancelled') {
+        box.innerHTML = `
+            <div class="live-order-card" style="--live-order-accent:${accent};">
+                <div class="live-order-head">
+                    <div class="live-order-title">🧾 طلبك <span class="live-order-serial">${latest.serial || ''}</span></div>
+                    <span class="order-status-badge" style="background:${accent};">${STATUS_LABELS[latest.status]}</span>
+                </div>
+                <div class="live-order-cancelled-note">🚫 تم إلغاء هذا الطلب</div>
+                <button class="live-order-link" onclick="openMyOrdersModalDirect()">عرض كل طلباتي ←</button>
+            </div>`;
+    } else {
+        box.innerHTML = `
+            <div class="live-order-card" style="--live-order-accent:${accent};">
+                <div class="live-order-head">
+                    <div class="live-order-title">🧾 طلبك ${latest.status === 'delivered' ? 'الأخير' : 'الحالي'} <span class="live-order-serial">${latest.serial || ''}</span></div>
+                    <span class="order-status-badge" style="background:${accent};">${STATUS_LABELS[latest.status]}</span>
+                </div>
+                ${buildStepperHtml(latest)}
+                <button class="live-order-link" onclick="openMyOrdersModalDirect()">عرض كل طلباتي ←</button>
+            </div>`;
+    }
+
+    box.classList.remove('hidden');
+}
+
+function openMyOrdersModalDirect() {
+    if (!loggedCustomer) return;
+    renderMyOrders();
+    document.getElementById('my-orders-modal').classList.add('show');
+}
+
+async function submitOrder() {
+    if (!appState.settings.isOpen) { showToast('عذراً، المطعم مغلق حالياً', 'error'); return; }
+
+    if (!loggedCustomer) {
+        showToast('يجب تسجيل الدخول أو إنشاء حساب لإتمام الطلب ومتابعة حالته', 'error');
+        closeModal('cart-modal');
+        openAccountModal();
+        return;
+    }
+
+    const name = document.getElementById('order-name').value.trim();
+    const phone = document.getElementById('order-phone').value.trim();
+    const address = document.getElementById('order-address').value.trim();
+    const note = document.getElementById('order-note').value.trim();
+    const phoneInput = document.getElementById('order-phone');
+    const phoneError = document.getElementById('phone-error-msg');
+
+    if (!name || !phone || !address) { showToast('الرجاء تعبئة كل المعلومات المطلوبة', 'error'); return; }
+
+    if (!validateAlgerianPhone(phone)) {
+        phoneInput.classList.add('input-error');
+        phoneError.style.display = 'block';
+        showToast('رقم الهاتف غير صحيح', 'error');
+        return;
+    }
+    phoneInput.classList.remove('input-error');
+    phoneError.style.display = 'none';
+
+    if (currentCart.length === 0) { showToast('السلة فارغة', 'error'); return; }
+
+    const submitBtn = document.getElementById('submit-order-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = '⏳ جاري الإرسال...';
+
+    const subtotal = currentCart.reduce((sum, item) => sum + item.price, 0);
+    const deliveryFee = parseInt(appState.settings.deliveryFee) || 0;
+    appState.lastOrderSerial = (appState.lastOrderSerial || 0) + 1;
+
+    const newOrder = {
+        id: Date.now(),
+        serial: formatSerial(appState.lastOrderSerial),
+        date: new Date().toLocaleString('ar-DZ'),
+        createdAt: new Date().toISOString(),
+        customer: { name, phone, address },
+        customerEmail: loggedCustomer ? loggedCustomer.email : null,
+        items: [...currentCart],
+        note: note,
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        total: subtotal + deliveryFee,
+        status: 'pending'
+    };
+
+    appState.orders.unshift(newOrder);
+
+    if (loggedCustomer) {
+        const acc = appState.customers.find(c => c.email === loggedCustomer.email);
+        if (acc) { acc.phone = phone; acc.name = acc.name || name; }
+    }
+
+    const ok = await persistState();
+
+    submitBtn.disabled = false;
+    submitBtn.innerText = '🚀 تأكيد وإرسال الطلب';
+
+    if (ok) {
+        currentCart = [];
+        updateCartUI();
+        closeModal('cart-modal');
+        renderLiveOrderStatus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast(`تم إرسال طلبك بنجاح! رقم الطلب: ${newOrder.serial} 🎉`, 'success');
+        document.getElementById('order-name').value = '';
+        document.getElementById('order-phone').value = '';
+        document.getElementById('order-address').value = '';
+        document.getElementById('order-note').value = '';
+    } else {
+        showToast('تعذّر إرسال الطلب، تحقق من الاتصال بالإنترنت وحاول مجدداً', 'error');
+    }
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* =====================================================================
+   6) إعدادات المطعم العامة
+   ===================================================================== */
+function applyRestaurantSettingsToUI() {
+    const s = appState.settings;
+    document.getElementById('restaurant-main-title').innerText = s.restaurantName;
+    document.title = s.restaurantName + ' | القائمة الذكية';
+
+    const pill = document.getElementById('open-status-pill');
+    const closedBanner = document.getElementById('closed-banner');
+    const floatingCart = document.getElementById('floating-cart');
+    if (s.isOpen) {
+        pill.className = 'status-pill open';
+        pill.innerHTML = '<span class="status-dot"></span> مفتوح الآن';
+        closedBanner.classList.add('hidden');
+    } else {
+        pill.className = 'status-pill closed';
+        pill.innerHTML = '<span class="status-dot"></span> مغلق حالياً';
+        closedBanner.classList.remove('hidden');
+        floatingCart.classList.add('hidden');
+    }
+}
+
+async function saveBasicSettings() {
+    const s = appState.settings;
+    s.restaurantName = document.getElementById('setting-name').value.trim() || DEFAULT_SETTINGS.restaurantName;
+    s.deliveryFee = parseInt(document.getElementById('setting-delivery').value) || 0;
+    s.estimatedPrepMinutes = parseInt(document.getElementById('setting-prep-time').value) || 30;
+    applyRestaurantSettingsToUI();
+    await persistState('تم حفظ إعدادات المطعم بنجاح');
+}
+
+async function toggleRestaurantOpen() {
+    appState.settings.isOpen = document.getElementById('setting-isopen').checked;
+    applyRestaurantSettingsToUI();
+    await persistState(appState.settings.isOpen ? 'المطعم الآن مفتوح لاستقبال الطلبات' : 'تم إغلاق المطعم مؤقتاً عن استقبال الطلبات');
+}
+
+async function saveSoundPref() {
+    appState.settings.soundEnabled = document.getElementById('setting-sound-enabled').checked;
+    await persistState();
+}
+
+async function changePassword() {
+    const current = document.getElementById('current-password').value;
+    const next = document.getElementById('new-password').value;
+    const confirm = document.getElementById('confirm-password').value;
+
+    if (current !== appState.settings.adminPassword) { showToast('كلمة المرور الحالية غير صحيحة', 'error'); return; }
+    if (!next || next.length < 4) { showToast('كلمة المرور الجديدة يجب أن تكون 4 أحرف على الأقل', 'error'); return; }
+    if (next !== confirm) { showToast('تأكيد كلمة المرور غير مطابق', 'error'); return; }
+
+    appState.settings.adminPassword = next;
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+    await persistState('تم تحديث كلمة المرور بنجاح');
+}
+
+async function factoryReset() {
+    if (!confirm('⚠️ سيتم حذف كل القائمة والطلبات والإعدادات نهائياً. هل أنت متأكد؟')) return;
+    if (!confirm('تأكيد نهائي: لا يمكن التراجع عن هذا الإجراء. متابعة؟')) return;
+    appState = defaultState();
+    applyColorsToCSS();
+    applyRestaurantSettingsToUI();
+    renderCustomerMenu();
+    await persistState('تمت إعادة ضبط المصنع بنجاح');
+    switchView('customer-view');
+}
+
+function logoutAdmin() {
+    isAdminLoggedIn = false;
+    switchView('customer-view');
+}
+
+function notifyNewOrder() {
+    playOrderChime();
+    showToast('🔔 وصل طلب جديد!', 'success');
+    document.title = '🔔 طلب جديد! — ' + (appState.settings.restaurantName || 'المطعم');
+    setTimeout(() => { document.title = (appState.settings.restaurantName || 'المطعم') + ' | القائمة الذكية'; }, 5000);
+    if (window.Notification && Notification.permission === 'granted') {
+        try { new Notification('طلب جديد 🔔', { body: 'وصل طلب جديد إلى لوحة الإدارة', icon: '' }); } catch (e) {}
+    }
+}
+
+/* =====================================================================
+   7) التنقّل بين الواجهات وتسجيل الدخول
+   ===================================================================== */
+function switchView(viewId) {
+    document.getElementById('customer-view').classList.add('hidden');
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('admin-view').classList.add('hidden');
+    document.getElementById(viewId).classList.remove('hidden');
+
+    if (viewId === 'admin-view') {
+        if (window.Notification && Notification.permission === 'default') {
+            try { Notification.requestPermission(); } catch (e) {}
+        }
+        document.getElementById('setting-name').value = appState.settings.restaurantName;
+        document.getElementById('setting-delivery').value = appState.settings.deliveryFee;
+        document.getElementById('setting-prep-time').value = appState.settings.estimatedPrepMinutes;
+        document.getElementById('setting-isopen').checked = appState.settings.isOpen;
+        document.getElementById('setting-sound-enabled').checked = appState.settings.soundEnabled;
+        populateColorInputs();
+        renderPresets();
+        renderAdminItems();
+        renderOrders();
+        renderArchive();
+        updateAdminStats();
+        lastKnownPendingIds = new Set(appState.orders.filter(o => o.status === 'pending').map(o => o.id));
+    } else if (viewId === 'customer-view') {
+        applyRestaurantSettingsToUI();
+        renderCustomerMenu();
+    }
+}
+
+function checkLogin() {
+    const input = document.getElementById('login-password');
+    if (input.value === appState.settings.adminPassword) {
+        input.value = '';
+        isAdminLoggedIn = true;
+        switchView('admin-view');
+    } else {
+        showToast('كلمة المرور غير صحيحة', 'error');
+    }
+}
+
+function switchAdminTab(tabId, btnElement) {
+    document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btnElement.classList.add('active');
+    if (tabId === 'tab-stats') renderStatsTab();
+}
+
+/* =====================================================================
+   8) لوحة إدارة الطلبات — عرض، ترتيب الحالة، أرشفة
+   ===================================================================== */
+const ORDER_STEPS = [
+    { key: 'pending', label: 'قيد الانتظار', icon: '🧾' },
+    { key: 'preparing', label: 'قيد التحضير', icon: '👨‍🍳' },
+    { key: 'out_for_delivery', label: 'في الطريق', icon: '🛵' },
+    { key: 'delivered', label: 'تم التسليم', icon: '✅' }
+];
+const STATUS_COLORS = { pending: 'var(--danger-color)', preparing: 'var(--warning-color)', out_for_delivery: 'var(--info-color)', delivered: 'var(--success-color)', cancelled: '#666' };
+const STATUS_LABELS = { pending: 'قيد الانتظار', preparing: 'قيد التحضير', out_for_delivery: 'في الطريق', delivered: 'تم التسليم', cancelled: 'ملغى' };
+
+function buildStepperHtml(order) {
+    const currentIndex = ORDER_STEPS.findIndex(s => s.key === order.status);
+    return `<div class="order-stepper">` + ORDER_STEPS.map((step, idx) => {
+        let cls = '';
+        if (idx < currentIndex) cls = 'done';
+        else if (idx === currentIndex) cls = 'current';
+        return `<div class="step-node ${cls}"><div class="step-line"></div><div class="step-circle">${step.icon}</div><div class="step-label">${step.label}</div></div>`;
+    }).join('') + `</div>`;
+}
+
+function buildOrderItemsHtml(order) {
+    return order.items.map(i => `<li><b>${escapeHtml(i.name)} (${i.size})</b> ${i.extras && i.extras.length > 0 ? '<br><span style="color:var(--danger-color);font-size:12.5px;">' + i.extras.join('، ') + '</span>' : ''} — <b>${i.price} دج</b></li>`).join('');
+}
+
+function buildOrderCard(order, isArchived) {
+    const itemsHtml = buildOrderItemsHtml(order);
+    const badgeColor = STATUS_COLORS[order.status] || '#666';
+    let actionsHtml = '';
+
+    if (!isArchived) {
+        const nextStepMap = { pending: 'preparing', preparing: 'out_for_delivery', out_for_delivery: 'delivered' };
+        const nextStep = nextStepMap[order.status];
+        if (nextStep) {
+            actionsHtml += `<button class="btn btn-success btn-sm" onclick="advanceOrderStatus(${order.id})">➡️ ${STATUS_LABELS[nextStep]}</button>`;
+        }
+        if (order.status !== 'delivered' && order.status !== 'cancelled') {
+            actionsHtml += `<button class="btn btn-warning btn-sm" onclick="cancelOrder(${order.id})">🚫 إلغاء</button>`;
+        }
+    }
+    actionsHtml += `<button class="btn btn-secondary btn-sm" onclick="printOrderReceipt(${order.id})">🖨️ طباعة</button>`;
+    actionsHtml += `<button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id},${isArchived})">🗑️ حذف</button>`;
+
+    return `
+        <div class="admin-card order-card status-${order.status}" id="order-card-${order.id}">
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <strong style="font-size:17px; color:var(--primary-color)">👤 ${escapeHtml(order.customer.name)}</strong>
+                    <div style="font-size:12px; color:var(--current-muted)">🕒 ${order.date} &nbsp;|&nbsp; <b>${order.serial || ''}</b></div>
+                </div>
+                <div><span class="order-status-badge" style="background:${badgeColor};">${STATUS_LABELS[order.status]}</span></div>
+            </div>
+            ${!isArchived && order.status !== 'cancelled' ? buildStepperHtml(order) : ''}
+            <div style="font-size:14px; line-height:1.7;">
+                <div>📞 <b>الهاتف:</b> <a href="tel:${order.customer.phone}" style="color:var(--current-text);">${order.customer.phone}</a></div>
+                <div>📍 <b>العنوان:</b> ${escapeHtml(order.customer.address)}</div>${order.note ? `<div>📝 <b>ملاحظة:</b> ${escapeHtml(order.note)}</div>` : ''}
+                <ul style="margin:10px 20px 10px 0;">${itemsHtml}</ul>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid var(--border-color); padding-top:14px; margin-top:10px; flex-wrap:wrap; gap:10px;">
+                <div style="font-size:17px; font-weight:900;">الإجمالي: <span style="color:var(--primary-color)">${order.total} دج</span></div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">${actionsHtml}</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderOrders() {
+    const container = document.getElementById('admin-orders-list');
+    let active = appState.orders.slice().sort((a, b) => (b.id) - (a.id));
+
+    const badge = document.getElementById('orders-tab-badge');
+    const pendingCount = active.filter(o => o.status === 'pending').length;
+    if (pendingCount > 0) { badge.textContent = pendingCount; badge.classList.remove('hidden'); }
+    else { badge.classList.add('hidden'); }
+
+    const searchEl = document.getElementById('orders-search');
+    const filterEl = document.getElementById('orders-filter-status');
+    const search = (searchEl?.value || '').trim().toLowerCase();
+    const statusFilter = filterEl?.value || 'all';
+
+    if (statusFilter !== 'all') active = active.filter(o => o.status === statusFilter);
+    if (search) {
+        active = active.filter(o =>
+            o.customer.name.toLowerCase().includes(search) ||
+            o.customer.phone.includes(search) ||
+            (o.serial || '').toLowerCase().includes(search)
+        );
+    }
+
+    if (active.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span class="emoji">🧾</span>لا توجد طلبات مطابقة</div>`;
+    } else {
+        container.innerHTML = active.map(o => buildOrderCard(o, false)).join('');
+    }
+}
+
+/* طباعة إيصال الطلب */
+function printOrderReceipt(orderId) {
+    const order = [...appState.orders, ...appState.archivedOrders].find(o => o.id === orderId);
+    if (!order) return;
+    const itemsRows = order.items.map(i => `<tr><td>${escapeHtml(i.name)} (${i.size})</td><td>${i.price} دج</td></tr>${i.extras && i.extras.length ? `<tr><td colspan="2" style="font-size:11px;color:#555;">${i.extras.join('، ')}</td></tr>` : ''}`).join('');
+    const win = window.open('', '_blank', 'width=380,height=600');
+    win.document.write(`
+        <html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>إيصال ${order.serial}</title>
+        <style>
+            body{font-family:Tajawal, Arial, sans-serif; padding:18px; color:#111;}
+            h2{text-align:center; margin-bottom:4px;}
+            .muted{color:#666; text-align:center; font-size:12px; margin-bottom:14px;}
+            table{width:100%; border-collapse:collapse; font-size:13px;}
+            td{padding:6px 0; border-bottom:1px dashed #ccc;}
+            .total{font-weight:800; font-size:16px; text-align:left; margin-top:10px;}
+        </style></head><body>
+        <h2>${escapeHtml(appState.settings.restaurantName)}</h2>
+        <div class="muted">${order.serial} —${order.date}</div>
+        <div><b>الزبون:</b> ${escapeHtml(order.customer.name)}</div>
+        <div><b>الهاتف:</b> ${order.customer.phone}</div>
+        <div><b>العنوان:</b> ${escapeHtml(order.customer.address)}</div>
+        <table>${itemsRows}</table>
+        <div class="total">المجموع: ${order.subtotal} دج<br>التوصيل: ${order.deliveryFee} دج<br>الإجمالي: ${order.total} دج</div>
+        <script>window.print();<\/script>
+        </body></html>
+    `);
+    win.document.close();
+}
+
+/* تصدير الأرشيف إلى ملف CSV */
+function exportArchiveToCSV() {
+    const rows = [['رقم الطلب', 'التاريخ', 'الاسم', 'الهاتف', 'العنوان', 'الحالة', 'الإجمالي']];
+    appState.archivedOrders.forEach(o => {
+        rows.push([o.serial || '', o.date || '', o.customer.name, o.customer.phone, o.customer.address, STATUS_LABELS[o.status] || o.status, o.total]);
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'orders_export_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('تم تصدير الملف بنجاح', 'success');
+}
+
+function renderArchive() {
+    const container = document.getElementById('admin-archive-list');
+    const archived = appState.archivedOrders.slice().sort((a, b) => (b.id) - (a.id)).slice(0, 100);
+    if (archived.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span class="emoji">📦</span>لا توجد طلبات في السجل بعد</div>`;
+    } else {
+        container.innerHTML = archived.map(o => buildOrderCard(o, true)).join('');
+    }
+}
+
+function updateAdminStats() {
+    const active = appState.orders;
+    document.getElementById('stat-pending').innerText = active.filter(o => o.status === 'pending').length;
+    document.getElementById('stat-preparing').innerText = active.filter(o => o.status === 'preparing').length;
+    document.getElementById('stat-outfordelivery').innerText = active.filter(o => o.status === 'out_for_delivery').length;
+
+    const todayStr = new Date().toDateString();
+    const allOrders = [...active, ...appState.archivedOrders];
+    const todayRevenue = allOrders
+        .filter(o => o.createdAt && new Date(o.createdAt).toDateString() === todayStr && o.status !== 'cancelled')
+        .reduce((sum, o) => sum + (o.total || 0), 0);
+    document.getElementById('stat-today-revenue').innerText = todayRevenue.toLocaleString('ar-DZ');
+}
+
+/* =====================================================================
+   إحصائيات المبيعات: اليوم، أيام الأسبوع، أسابيع الشهر، الأشهر، الأعوام
+   ===================================================================== */
+function getSalesOrders() {
+    return [...appState.orders, ...appState.archivedOrders].filter(o => o.status !== 'cancelled' && o.createdAt);
+}
+
+function renderBarChart(containerId, data) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const max = Math.max(1, ...data.map(d => d.value));
+    el.innerHTML = `<div class="bar-chart">` + data.map(d => `
+        <div class="bar-col">
+            <div class="bar-value">${Math.round(d.value).toLocaleString('ar-DZ')}</div>
+            <div class="bar-fill" style="height:${Math.max(3, (d.value / max) * 100)}%;"></div>
+            <div class="bar-label">${d.label}</div>
+        </div>`).join('') + `</div>`;
+}
+
+function renderStatsTab() {
+    const orders = getSalesOrders();
+    const now = new Date();
+
+    /* ملخص اليوم / الأسبوع / الشهر */
+    const todayOrders = orders.filter(o => new Date(o.createdAt).toDateString() === now.toDateString());
+    document.getElementById('stats-today-total').innerText = todayOrders.reduce((s, o) => s + (o.total || 0), 0).toLocaleString('ar-DZ') + ' دج';
+    document.getElementById('stats-today-count').innerText = todayOrders.length;
+
+    const weekdayData = computeWeekdayStats(orders, now);
+    document.getElementById('stats-week-total').innerText = weekdayData.reduce((s, d) => s + d.value, 0).toLocaleString('ar-DZ') + ' دج';
+
+    const monthData = computeMonthStats(orders, now);
+    document.getElementById('stats-month-total').innerText = monthData[now.getMonth()].value.toLocaleString('ar-DZ') + ' دج';
+
+    renderBarChart('chart-weekdays', weekdayData);
+    renderBarChart('chart-weeks', computeWeekOfMonthStats(orders, now));
+    renderBarChart('chart-months', monthData);
+    renderBarChart('chart-years', computeYearStats(orders, now));
+}
+
+/* أيام الأسبوع الحالي: من الأحد إلى السبت */
+function computeWeekdayStats(orders, now) {
+    const labels = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const totals = new Array(7).fill(0);
+    const sunday = new Date(now);
+    sunday.setHours(0, 0, 0, 0);
+    sunday.setDate(now.getDate() - now.getDay());
+    orders.forEach(o => {
+        const d = new Date(o.createdAt);
+        const diffDays = Math.floor((d - sunday) / 86400000);
+        if (diffDays >= 0 && diffDays < 7) totals[diffDays] += (o.total || 0);
+    });
+    return labels.map((label, i) => ({ label, value: totals[i] }));
+}
+
+/* أسابيع الشهر الحالي: من الأسبوع 1 إلى 4 (وما بعد اليوم 28 يُضاف للأسبوع 4) */
+function computeWeekOfMonthStats(orders, now) {
+    const totals = [0, 0, 0, 0];
+    orders.forEach(o => {
+        const d = new Date(o.createdAt);
+        if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
+            let w = Math.ceil(d.getDate() / 7);
+            if (w > 4) w = 4;
+            totals[w - 1] += (o.total || 0);
+        }
+    });
+    return totals.map((value, i) => ({ label: 'الأسبوع ' + (i + 1), value }));
+}
+
+/* أشهر السنة الحالية: من جانفي إلى ديسمبر */
+function computeMonthStats(orders, now) {
+    const labels = ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const totals = new Array(12).fill(0);
+    orders.forEach(o => {
+        const d = new Date(o.createdAt);
+        if (d.getFullYear() === now.getFullYear()) totals[d.getMonth()] += (o.total || 0);
+    });
+    return labels.map((label, i) => ({ label, value: totals[i] }));
+}
+
+/* الأعوام: من 2026 إلى العام الحالي (يتوسّع تلقائياً في المستقبل) */
+function computeYearStats(orders, now) {
+    const startYear = 2026;
+    const endYear = Math.max(startYear, now.getFullYear());
+    const years = [];
+    for (let y = startYear; y <= endYear; y++) years.push(y);
+    return years.map(y => ({
+        label: String(y),
+        value: orders.filter(o => new Date(o.createdAt).getFullYear() === y).reduce((s, o) => s + (o.total || 0), 0)
+    }));
+}
+
+async function advanceOrderStatus(orderId) {
+    const order = appState.orders.find(o => o.id === orderId);
+    if (!order) return;
+    const nextStepMap = { pending: 'preparing', preparing: 'out_for_delivery', out_for_delivery: 'delivered' };
+    const next = nextStepMap[order.status];
+    if (!next) return;
+    order.status = next;
+
+    if (next === 'delivered') {
+        appState.orders = appState.orders.filter(o => o.id !== orderId);
+        appState.archivedOrders.unshift(order);
+    }
+
+    renderOrders();
+    renderArchive();
+    updateAdminStats();
+    await persistState('تم تحديث حالة الطلب: ' + STATUS_LABELS[next]);
+}
+
+async function cancelOrder(orderId) {
+    if (!confirm('هل تريد إلغاء هذا الطلب؟')) return;
+    const order = appState.orders.find(o => o.id === orderId);
+    if (!order) return;
+    order.status = 'cancelled';
+    appState.orders = appState.orders.filter(o => o.id !== orderId);
+    appState.archivedOrders.unshift(order);
+    renderOrders();
+    renderArchive();
+    updateAdminStats();
+    await persistState('تم إلغاء الطلب');
+}
+
+async function deleteOrder(orderId, isArchived) {
+    if (!confirm('متأكد من حذف هذا الطلب نهائياً؟')) return;
+    if (isArchived) appState.archivedOrders = appState.archivedOrders.filter(o => o.id !== orderId);
+    else appState.orders = appState.orders.filter(o => o.id !== orderId);
+    renderOrders();
+    renderArchive();
+    updateAdminStats();
+    await persistState('تم حذف الطلب');
+}
+
+async function clearArchive() {
+    if (!confirm('سيتم حذف كل الطلبات المؤرشفة نهائياً. متابعة؟')) return;
+    appState.archivedOrders = [];
+    renderArchive();
+    await persistState('تم إفراغ سجل الطلبات');
+}
+
+/* =====================================================================
+   9) إدارة القائمة — إضافة / تعديل / حذف الأطباق
+   ===================================================================== */
+function addPaidExtraField(name = '', price = '') {
+    const container = document.getElementById('dynamic-paid-extras');
+    const div = document.createElement('div');
+    div.className = 'row-inputs';
+    div.innerHTML = `<input type="text" class="form-control p-name" placeholder="اسم الإضافة (مثال: جبن)" value="${escapeHtml(name)}"><input type="number" class="form-control p-price" placeholder="السعر" value="${price}"><button class="btn btn-danger btn-icon" onclick="this.parentElement.remove()">✕</button>`;
+    container.appendChild(div);
+}
+
+function addRemovableField(name = '') {
+    const container = document.getElementById('dynamic-removable-extras');
+    const div = document.createElement('div');
+    div.className = 'row-inputs';
+    div.innerHTML = `<input type="text" class="form-control r-name" placeholder="مكون للإزالة (مثال: بصل)" value="${escapeHtml(name)}"><button class="btn btn-danger btn-icon" onclick="this.parentElement.remove()">✕</button>`;
+    container.appendChild(div);
+}
+
+/* معاينة صورة الطبق قبل الحفظ — تُحوَّل إلى Base64 لتُخزَّن مباشرة داخل بيانات الطبق */
+let pendingItemImageBase64 = null;
+
+function previewItemImage(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        pendingItemImageBase64 = e.target.result;
+        const preview = document.getElementById('item-image-preview');
+        preview.src = pendingItemImageBase64;
+        preview.classList.remove('hidden');
+    };
+    reader.onerror = () => showToast('تعذّرت قراءة الصورة، جرّب صورة أخرى', 'error');
+    reader.readAsDataURL(file);
+}
+
+/* تفريغ نموذج الطبق والعودة إلى وضع "إضافة طبق جديد" */
+function resetItemForm() {
+    document.getElementById('editing-item-id').value = '';
+    document.getElementById('item-image').value = '';
+    document.getElementById('item-image-preview').classList.add('hidden');
+    document.getElementById('item-image-preview').src = '';
+    pendingItemImageBase64 = null;
+
+    document.getElementById('item-name').value = '';
+    document.getElementById('item-desc').value = '';
+    document.getElementById('item-category').value = 'burger';
+    document.getElementById('price-small').value = '';
+    document.getElementById('price-medium').value = '';
+    document.getElementById('price-large').value = '';
+    document.getElementById('item-available').checked = true;
+
+    document.getElementById('dynamic-paid-extras').innerHTML = '';
+    document.getElementById('dynamic-removable-extras').innerHTML = '';
+
+    document.querySelectorAll('#tab-menu .field-error-msg').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('#tab-menu .input-error').forEach(el => el.classList.remove('input-error'));
+
+    document.getElementById('form-title').innerText = '➕ إضافة طبق جديد';
+    document.getElementById('save-item-btn').innerText = '➕ إضافة الطبق';
+    document.getElementById('cancel-edit-btn').classList.add('hidden');
+}
+
+/* تعبئة النموذج ببيانات طبق موجود من أجل تعديله */
+function editMenuItem(itemId) {
+    const item = appState.menu.find(i => String(i.id) === String(itemId));
+    if (!item) return;
+
+    resetItemForm();
+    document.getElementById('editing-item-id').value = item.id;
+    document.getElementById('item-name').value = item.name || '';
+    document.getElementById('item-desc').value = item.desc || '';
+    document.getElementById('item-category').value = item.category || 'burger';
+    document.getElementById('price-small').value = item.prices && item.prices.small ? item.prices.small : '';
+    document.getElementById('price-medium').value = item.prices && item.prices.medium ? item.prices.medium : '';
+    document.getElementById('price-large').value = item.prices && item.prices.large ? item.prices.large : '';
+    document.getElementById('item-available').checked = item.available !== false;
+
+    if (item.image) {
+        pendingItemImageBase64 = item.image;
+        const preview = document.getElementById('item-image-preview');
+        preview.src = item.image;
+        preview.classList.remove('hidden');
+    }
+
+    (item.paidExtras || []).forEach(ex => addPaidExtraField(ex.name, ex.price));
+    (item.removableExtras || []).forEach(name => addRemovableField(name));
+
+    document.getElementById('form-title').innerText = '✏️ تعديل الطبق';
+    document.getElementById('save-item-btn').innerText = '💾 حفظ التعديلات';
+    document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+    document.getElementById('form-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* حفظ طبق جديد أو تحديث طبق قيد التعديل، مع تحقق أساسي من الحقول */
+async function handleSaveItem() {
+    const nameInput = document.getElementById('item-name');
+    const name = nameInput.value.trim();
+    const desc = document.getElementById('item-desc').value.trim();
+    const category = document.getElementById('item-category').value;
+
+    const small = document.getElementById('price-small').value ? parseInt(document.getElementById('price-small').value) : null;
+    const medium = document.getElementById('price-medium').value ? parseInt(document.getElementById('price-medium').value) : null;
+    const large = document.getElementById('price-large').value ? parseInt(document.getElementById('price-large').value) : null;
+
+    let hasError = false;
+    if (!name) {
+        nameInput.classList.add('input-error');
+        showToast('يجب إدخال اسم الطبق', 'error');
+        hasError = true;
+    } else {
+        nameInput.classList.remove('input-error');
+    }
+    if (!small && !medium && !large) {
+        showToast('يجب تحديد سعر واحد على الأقل (صغير/وسط/كبير)', 'error');
+        hasError = true;
+    }
+    if (hasError) return;
+
+    const paidExtras = [];
+    document.querySelectorAll('#dynamic-paid-extras .row-inputs').forEach(row => {
+        const exName = row.querySelector('.p-name').value.trim();
+        const exPrice = parseInt(row.querySelector('.p-price').value) || 0;
+        if (exName) paidExtras.push({ name: exName, price: exPrice });
+    });
+
+    const removableExtras = [];
+    document.querySelectorAll('#dynamic-removable-extras .row-inputs').forEach(row => {
+        const remName = row.querySelector('.r-name').value.trim();
+        if (remName) removableExtras.push(remName);
+    });
+
+    const editingId = document.getElementById('editing-item-id').value;
+    const available = document.getElementById('item-available').checked;
+
+    if (editingId) {
+        const item = appState.menu.find(i => String(i.id) === String(editingId));
+        if (!item) { showToast('تعذّر إيجاد هذا الطبق', 'error'); return; }
+        item.name = name;
+        item.desc = desc;
+        item.category = category;
+        item.prices = { small, medium, large };
+        item.paidExtras = paidExtras;
+        item.removableExtras = removableExtras;
+        item.available = available;
+        if (pendingItemImageBase64) item.image = pendingItemImageBase64;
+        await persistState('تم حفظ تعديلات الطبق');
+    } else {
+        const newItem = {
+            id: 'item_' + Date.now(),
+            name, desc, category,
+            prices: { small, medium, large },
+            paidExtras, removableExtras,
+            available,
+            image: pendingItemImageBase64 || ''
+        };
+        appState.menu.push(newItem);
+        await persistState('تمت إضافة الطبق بنجاح');
+    }
+
+    resetItemForm();
+    renderAdminItems();
+    renderCustomerMenu();
+}
+
+/* حذف طبق نهائياً من القائمة */
+async function deleteMenuItem(itemId) {
+    if (!confirm('متأكد من حذف هذا الطبق نهائياً؟')) return;
+    appState.menu = appState.menu.filter(i => String(i.id) !== String(itemId));
+    if (document.getElementById('editing-item-id').value === String(itemId)) resetItemForm();
+    renderAdminItems();
+    renderCustomerMenu();
+    await persistState('تم حذف الطبق');
+}
+
+/* تبديل سريع لتوفّر الطبق دون فتح نموذج التعديل الكامل */
+async function toggleItemAvailability(itemId) {
+    const item = appState.menu.find(i => String(i.id) === String(itemId));
+    if (!item) return;
+    item.available = item.available === false ? true : false;
+    renderAdminItems();
+    renderCustomerMenu();
+    await persistState(item.available ? 'الطبق متوفر الآن' : 'تم إخفاء الطبق مؤقتاً');
+}
+
+/* بناء نص مختصر لمدى السعر حسب الأحجام المتوفرة */
+function buildPriceRangeLabel(prices) {
+    const values = [prices.small, prices.medium, prices.large].filter(p => p !== null && p !== undefined && p !== '');
+    if (values.length === 0) return '—';
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    return min === max ? `${min} دج` : `${min} - ${max} دج`;
+}
+
+/* عرض كل أطباق القائمة داخل لوحة الإدارة مع بحث فوري وأزرار تعديل/حذف/إخفاء */
+function renderAdminItems() {
+    const list = document.getElementById('admin-items-list');
+    const searchTerm = (document.getElementById('menu-search').value || '').trim().toLowerCase();
+
+    const filtered = appState.menu.filter(item => {
+        if (!searchTerm) return true;
+        return item.name.toLowerCase().includes(searchTerm) ||
+               (categoryNames[item.category] || '').toLowerCase().includes(searchTerm);
+    });
+
+    document.getElementById('menu-count').innerText = appState.menu.length;
+
+    if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><span class="emoji">🍽️</span>لا توجد أطباق مطابقة</div>`;
+        return;
+    }
+
+    list.innerHTML = filtered.map(item => `
+        <div class="admin-item-row">
+            <div class="admin-item-info">
+                <img src="${item.image || defaultImage}" loading="lazy">
+                <div>
+                    <div style="font-weight:800;">
+                        ${item.available === false ? '<span class="item-off-badge">غير متوفر</span>' : ''}${escapeHtml(item.name)}
+                    </div>
+                    <div class="text-muted" style="font-size:12.5px; margin-top:2px;">
+                        ${categoryIcons[item.category] || ''} ${categoryNames[item.category] || item.category} • ${buildPriceRangeLabel(item.prices)}
+                    </div>
+                </div>
+            </div>
+            <div class="admin-item-actions">
+                <button class="btn btn-secondary btn-icon" title="${item.available === false ? 'إظهار الطبق' : 'إخفاء الطبق'}" onclick="toggleItemAvailability('${item.id}')">${item.available === false ? '🙈' : '👁️'}</button>
+                <button class="btn btn-secondary btn-icon" title="تعديل" onclick="editMenuItem('${item.id}')">✏️</button>
+                <button class="btn btn-danger btn-icon" title="حذف" onclick="deleteMenuItem('${item.id}')">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+</script>
+</body>
+</html>
